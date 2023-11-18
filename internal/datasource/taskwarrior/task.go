@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/jubnzv/go-taskwarrior"
+	"go.uber.org/multierr"
 )
 
 const defaultLimit = 10
@@ -20,10 +21,19 @@ type TaskwarriorDatasource struct {
 	once     sync.Once
 }
 
-func New() (*TaskwarriorDatasource, error) {
-	return &TaskwarriorDatasource{
+func New(opts ...Opt) (*TaskwarriorDatasource, error) {
+	tw := &TaskwarriorDatasource{
 		limit: defaultLimit,
-	}, nil
+	}
+
+	var errs error
+	for _, opt := range opts {
+		if err := opt(tw); err != nil {
+			errs = multierr.Append(errs, err)
+		}
+	}
+
+	return tw, errs
 }
 
 func (a *TaskwarriorDatasource) Name() string {

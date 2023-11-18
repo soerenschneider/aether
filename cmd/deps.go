@@ -152,7 +152,7 @@ func buildTaskwarrior(conf *config.TaskwarriorConfig) (*taskwarrior.TaskwarriorD
 		opts = append(opts, taskwarrior.WithTemplateFile(conf.TemplateFile))
 	}
 
-	return taskwarrior.New()
+	return taskwarrior.New(opts...)
 }
 
 func buildCardDav(conf *config.CardDavConfig) (*carddav.CarddavDatasource, error) {
