@@ -75,11 +75,7 @@ func (t *TaskwarriorDatasource) getTaskwarriorOutput() ([]Task, error) {
 }
 
 func filterTask(task Task) bool {
-	if task.Status == "pending" {
-		return true
-	}
-
-	return false
+	return task.Status == "pending"
 }
 
 func filterTasks(tasks []Task) []Task {
