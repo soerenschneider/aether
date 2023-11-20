@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"flag"
+	"fmt"
 	"os"
 	"os/signal"
 	"sync"
@@ -12,27 +13,48 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+	"github.com/soerenschneider/aether/internal"
 	"github.com/soerenschneider/aether/internal/config"
 	"github.com/soerenschneider/aether/internal/datasource"
 	"github.com/soerenschneider/aether/internal/datasource/static"
 	"github.com/soerenschneider/aether/internal/serve"
 
+	"github.com/caarlos0/env/v10"
 	"github.com/go-co-op/gocron"
 	"github.com/rs/zerolog/log"
 	"go.uber.org/multierr"
 )
 
+type Flags struct {
+	ConfigFile   string `env:"CONFIG_FILE"`
+	Debug        bool   `env:"DEBUG"`
+	PrintVersion bool
+}
+
+const defaultConfigLocation = "/etc/aether.yaml"
+
 var (
-	configFile string
-	debug      bool
-	dep        = &deps{}
-	once       = sync.Once{}
+	flags = Flags{}
+	dep   = &deps{}
+	once  = sync.Once{}
 )
 
-func parseFlags() {
-	flag.StringVar(&configFile, "config", "contrib/config.yaml", "config file")
-	flag.BoolVar(&debug, "debug", false, "log debug statements")
+func parseFlags() error {
+	opts := env.Options{
+		Prefix: "AETHER_",
+	}
+
+	err := env.ParseWithOptions(&flags, opts)
+	if err != nil {
+		return err
+	}
+
+	flag.StringVar(&flags.ConfigFile, "config", defaultConfigLocation, "config file")
+	flag.BoolVar(&flags.Debug, "Debug", false, "log Debug statements")
+	flag.BoolVar(&flags.PrintVersion, "version", false, "print version and exit")
 	flag.Parse()
+
+	return nil
 }
 
 func dieOnError(err error, msg string) {
@@ -42,8 +64,17 @@ func dieOnError(err error, msg string) {
 }
 
 func main() {
-	parseFlags()
+	if err := parseFlags(); err != nil {
+		dieOnError(err, "could not parse flags")
+	}
+
+	if flags.PrintVersion {
+		fmt.Println(internal.BuildVersion)
+		os.Exit(0)
+	}
+
 	initLogging()
+	log.Info().Msgf("Starting aether %s", internal.BuildVersion)
 	conf, err := getConfig()
 	dieOnError(err, "no config")
 
@@ -87,7 +118,7 @@ func main() {
 
 func initLogging() {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
-	if debug {
+	if flags.Debug {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	}
 }
@@ -135,7 +166,7 @@ func update(ctx context.Context, datasources []datasource.Datasource) {
 }
 
 func getConfig() (*config.Config, error) {
-	return config.ReadConfig(configFile)
+	return config.ReadConfig(flags.ConfigFile)
 }
 
 func getHtml(ctx context.Context, datasources []datasource.Datasource) (string, error) {

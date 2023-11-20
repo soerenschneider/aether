@@ -3,6 +3,7 @@ module github.com/soerenschneider/aether
 go 1.21
 
 require (
+	github.com/caarlos0/env/v10 v10.0.0
 	github.com/emersion/go-ical v0.0.0-20220601085725-0864dccc089f
 	github.com/emersion/go-vcard v0.0.0-20191221110513-5f81fa0d3cc7
 	github.com/emersion/go-webdav v0.4.0
