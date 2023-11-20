@@ -197,21 +197,11 @@ func getHtml(ctx context.Context, datasources []datasource.Datasource) (string, 
 	buffer := bytes.NewBufferString(prefix)
 	for i := 0; i < len(datasources); i++ {
 		if len(pieces[i]) > 0 {
-			html := pieces[i]
-			_, err := buffer.WriteString(html)
-			if err != nil {
-				errs = multierr.Append(errs, err)
-				return "", errs
-			}
+			_, _ = buffer.WriteString(pieces[i])
 		}
 	}
 
-	_, err := buffer.WriteString(postfix)
-	if err != nil {
-		errs = multierr.Append(errs, err)
-		return "", errs
-	}
-
+	_, _ = buffer.WriteString(postfix)
 	return buffer.String(), errs
 }
 
