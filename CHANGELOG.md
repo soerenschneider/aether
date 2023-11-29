@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/soerenschneider/aether/compare/v1.1.0...v1.1.1) (2023-11-29)
+
+
+### Bug Fixes
+
+* **deps:** bump golang from 1.21.3 to 1.21.4 ([7fabf3a](https://github.com/soerenschneider/aether/commit/7fabf3aabf6b0c158ca50994cb54d53d54220113))
+
 ## [1.1.0](https://github.com/soerenschneider/aether/compare/v1.0.0...v1.1.0) (2023-11-20)
 
 
