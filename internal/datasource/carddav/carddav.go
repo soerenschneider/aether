@@ -28,6 +28,8 @@ type CarddavDatasource struct {
 	password      string
 	lookaheadDays int
 
+	location *time.Location
+
 	davClient  *carddav.Client
 	template   *template.Template
 	once       sync.Once
@@ -39,6 +41,7 @@ func New(endpoint string, opts ...Opt) (*CarddavDatasource, error) {
 		endpoint:      endpoint,
 		lookaheadDays: defaultLookaheadDays,
 		httpClient:    http.DefaultClient,
+		location:      time.Now().Location(),
 	}
 
 	var errs error
@@ -96,7 +99,7 @@ func sortCards(entries []Card) {
 }
 
 func (c *CarddavDatasource) isUpcoming(anniversary time.Time) bool {
-	currentDate := time.Now()
+	currentDate := time.Now().In(c.location)
 	compareYear := currentDate.Year()
 	if anniversary.Month() < currentDate.Month() {
 		compareYear += 1
@@ -151,7 +154,7 @@ func (c *CarddavDatasource) getEntries(_ context.Context) (*CarddavData, error) 
 		return nil, fmt.Errorf("querying first calendar %q: %w", addressbooks[0].Path, err)
 	}
 
-	now := time.Now()
+	now := time.Now().In(c.location)
 	for _, r := range resp {
 		birthday := r.Card.Get(vcard.FieldBirthday)
 		if birthday != nil {
@@ -176,8 +179,8 @@ func (c *CarddavDatasource) getEntries(_ context.Context) (*CarddavData, error) 
 
 	return &CarddavData{
 		Cards: entries,
-		From:  time.Now(),
-		To:    time.Now().AddDate(0, 0, c.lookaheadDays),
+		From:  time.Now().In(c.location),
+		To:    time.Now().In(c.location).AddDate(0, 0, c.lookaheadDays),
 	}, nil
 }
 
