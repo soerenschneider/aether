@@ -85,16 +85,35 @@ func (c *CarddavDatasource) GetHtml(ctx context.Context) (string, error) {
 	}
 
 	data.Cards = c.filter(data.Cards)
-	sortCards(data.Cards)
+	sortCards(data.Cards, time.Now().In(c.location))
 
 	var tpl bytes.Buffer
 	err = c.template.Execute(&tpl, data)
 	return tpl.String(), err
 }
 
-func sortCards(entries []Card) {
+func sortCards(entries []Card, now time.Time) {
 	sort.Slice(entries, func(i, j int) bool {
-		return entries[i].Date.Before(entries[j].Date)
+		iMonth := entries[i].Anniversary.Month()
+		jMonth := entries[j].Anniversary.Month()
+		curMonth := now.Month()
+
+		if iMonth >= curMonth && jMonth >= curMonth || iMonth < curMonth && jMonth < curMonth {
+			if iMonth < jMonth {
+				return true
+			}
+			if iMonth > jMonth {
+				return false
+			}
+
+			return entries[i].Anniversary.Day() < entries[j].Anniversary.Day()
+		}
+
+		if iMonth < curMonth && jMonth >= curMonth || iMonth >= curMonth && jMonth < curMonth {
+			return true
+		}
+
+		return entries[i].Anniversary.Day() < entries[j].Anniversary.Day()
 	})
 }
 
@@ -115,7 +134,7 @@ func (c *CarddavDatasource) filter(entries []Card) []Card {
 	var filtered []Card
 
 	for _, entry := range entries {
-		if !entry.Date.IsZero() && c.isUpcoming(entry.Date) {
+		if !entry.Anniversary.IsZero() && c.isUpcoming(entry.Anniversary) {
 			filtered = append(filtered, entry)
 		}
 	}
@@ -197,13 +216,13 @@ func buildCard(orig vcard.Card, date *vcard.Field, anniversaryType string, now t
 	}
 
 	var err error
-	ret.Date, err = parseTimeCard(date.Value)
+	ret.Anniversary, err = parseTimeCard(date.Value)
 	if err != nil {
 		return ret, err
 	}
 
-	ret.DateFormatted = getFormattedAnniversaryDate(ret.Date)
+	ret.DateFormatted = getFormattedAnniversaryDate(ret.Anniversary)
 	ret.Type = anniversaryType
-	ret.Years = now.Year() - ret.Date.Year()
+	ret.Years = now.Year() - ret.Anniversary.Year()
 	return ret, nil
 }

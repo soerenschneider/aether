@@ -15,7 +15,7 @@ type CarddavData struct {
 
 type Card struct {
 	Name          string
-	Date          time.Time
+	Anniversary   time.Time
 	DateFormatted string
 	Type          string
 	Years         int
