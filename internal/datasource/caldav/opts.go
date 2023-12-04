@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"time"
 )
 
 func WithTemplateFile(file string) Opt {
@@ -21,6 +22,16 @@ func WithTemplateFile(file string) Opt {
 		}
 
 		ds.template = temp
+		return nil
+	}
+}
+
+func WithLocation(location *time.Location) Opt {
+	return func(ds *CaldavDatasource) error {
+		if location == nil {
+			return errors.New("empty location")
+		}
+		ds.location = location
 		return nil
 	}
 }

@@ -29,6 +29,7 @@ type CaldavDatasource struct {
 	days int
 
 	davClient *caldav.Client
+	location  *time.Location
 
 	template   *template.Template
 	once       sync.Once
@@ -42,6 +43,7 @@ func New(endpoint string, opts ...Opt) (*CaldavDatasource, error) {
 		endpoint:   endpoint,
 		days:       defaultDays,
 		httpClient: http.DefaultClient,
+		location:   time.Now().Location(),
 	}
 
 	var errs error
@@ -99,8 +101,8 @@ func sortEntries(entries []Entry) {
 
 func (c *CaldavDatasource) filter(entries []Entry) []Entry {
 	var filtered []Entry
-	start := pkg.Today(time.Now())
-	end := pkg.NWeeks(time.Now(), c.days)
+	start := pkg.Today(time.Now().In(c.location))
+	end := pkg.NWeeks(time.Now().In(c.location), c.days)
 
 	for _, entry := range entries {
 		if entry.Start.After(start) && entry.End.Before(end) {
@@ -155,8 +157,8 @@ func (c *CaldavDatasource) getEntries(ctx context.Context) (*CaldavData, error) 
 
 	data := &CaldavData{
 		Entries: entries,
-		From:    time.Now(),
-		To:      time.Now().AddDate(0, 0, c.days),
+		From:    time.Now().In(c.location),
+		To:      time.Now().In(c.location).AddDate(0, 0, c.days),
 	}
 
 	return data, nil
