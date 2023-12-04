@@ -18,7 +18,7 @@ import (
 	"go.uber.org/multierr"
 )
 
-const defaultLookaheadDays = 7 * 3
+const defaultLookaheadDays = 7 * 2
 
 type Opt func(datasource *CarddavDatasource) error
 
