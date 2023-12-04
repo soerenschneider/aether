@@ -6,11 +6,33 @@ import (
 )
 
 type WeatherData struct {
-	Cod     string         `json:"cod"`
-	Message int            `json:"message"`
-	Cnt     int            `json:"cnt"`
-	List    []WeatherEntry `json:"list"`
-	City    City           `json:"city"`
+	Cod     string          `json:"cod"`
+	Message int             `json:"message"`
+	Cnt     int             `json:"cnt"`
+	List    []*WeatherEntry `json:"list"`
+	City    City            `json:"city"`
+}
+
+func (w *WeatherData) UnmarshalJSON(data []byte) error {
+	type Alias WeatherData
+
+	tmp := Alias{}
+	if err := json.Unmarshal(data, &tmp); err != nil {
+		return err
+	}
+
+	t := time.Now()
+	_, offset := t.Zone()
+	tzOffset := time.Duration(tmp.City.Timezone-offset) * time.Second
+	tmp.City.SunriseTime = time.Unix(int64(tmp.City.Sunrise), 0).Add(tzOffset)
+	tmp.City.SunsetTime = time.Unix(int64(tmp.City.Sunset), 0).Add(tzOffset)
+
+	for _, entry := range tmp.List {
+		entry.Time = time.Unix(int64(entry.Dt), 0).Add(tzOffset)
+	}
+
+	*w = WeatherData(tmp)
+	return nil
 }
 
 type WeatherEntry struct {
@@ -42,7 +64,7 @@ func (w *WeatherEntry) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &tmp); err != nil {
 		return err
 	}
-	tmp.Time = time.Unix(int64(tmp.Dt), 0)
+
 	tmp.PopClass = getClassForPop(tmp.Pop)
 	if len(tmp.Weather) > 0 {
 		tmp.WeatherDescription = tmp.Weather[0].Description
@@ -163,20 +185,6 @@ type City struct {
 	SunriseTime time.Time
 	Sunset      int `json:"sunset"`
 	SunsetTime  time.Time
-}
-
-func (w *City) UnmarshalJSON(data []byte) error {
-	type Alias City
-
-	tmp := Alias{}
-	if err := json.Unmarshal(data, &tmp); err != nil {
-		return err
-	}
-	tmp.SunriseTime = time.Unix(int64(tmp.Sunrise), 0)
-	tmp.SunsetTime = time.Unix(int64(tmp.Sunset), 0)
-
-	*w = City(tmp)
-	return nil
 }
 
 type Coord struct {
