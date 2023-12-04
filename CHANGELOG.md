@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.0](https://github.com/soerenschneider/aether/compare/v1.1.0...v1.2.0) (2023-12-04)
+
+
+### Features
+
+* set custom timezone ([198d420](https://github.com/soerenschneider/aether/commit/198d420f96e8ea0b79eb08e71609c0a18908fa94))
+* set custom timezone ([8f077df](https://github.com/soerenschneider/aether/commit/8f077dfbb0279dce1e512bb909b30fe59874b9e1))
+
+
+### Bug Fixes
+
+* correctly compare anniversaries ([cda1f20](https://github.com/soerenschneider/aether/commit/cda1f20272d8c5247bcf8fb19f4e7c0e3eb934bf))
+* **deps:** bump golang from 1.21.3 to 1.21.4 ([7fabf3a](https://github.com/soerenschneider/aether/commit/7fabf3aabf6b0c158ca50994cb54d53d54220113))
+* display timestamps using the correct offset ([fdab214](https://github.com/soerenschneider/aether/commit/fdab214bcc7e9e978175dd97f836609fd83c7c0d))
+
 ## [1.1.0](https://github.com/soerenschneider/aether/compare/v1.0.0...v1.1.0) (2023-11-20)
 
 
