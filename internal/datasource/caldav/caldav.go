@@ -19,7 +19,7 @@ import (
 	"go.uber.org/multierr"
 )
 
-const defaultDays = 7 * 8
+const defaultDays = 7 * 4
 
 type CaldavDatasource struct {
 	endpoint string
