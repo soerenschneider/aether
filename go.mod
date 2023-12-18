@@ -7,7 +7,7 @@ require (
 	github.com/emersion/go-ical v0.0.0-20220601085725-0864dccc089f
 	github.com/emersion/go-vcard v0.0.0-20191221110513-5f81fa0d3cc7
 	github.com/emersion/go-webdav v0.4.0
-	github.com/go-co-op/gocron v1.36.0
+	github.com/go-co-op/gocron v1.37.0
 	github.com/go-openapi/strfmt v0.21.7
 	github.com/go-playground/validator/v10 v10.16.0
 	github.com/hashicorp/go-retryablehttp v0.7.5
