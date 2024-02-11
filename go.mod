@@ -14,7 +14,7 @@ require (
 	github.com/jubnzv/go-taskwarrior v0.0.0-20220111032313-0ea4f466b47c
 	github.com/prometheus/alertmanager v0.26.0
 	github.com/prometheus/client_golang v1.18.0
-	github.com/rs/zerolog v1.31.0
+	github.com/rs/zerolog v1.32.0
 	github.com/sj14/astral v0.2.0
 	go.uber.org/multierr v1.11.0
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
