@@ -8,7 +8,7 @@ require (
 	github.com/emersion/go-vcard v0.0.0-20191221110513-5f81fa0d3cc7
 	github.com/emersion/go-webdav v0.4.0
 	github.com/go-co-op/gocron v1.37.0
-	github.com/go-openapi/strfmt v0.22.0
+	github.com/go-openapi/strfmt v0.22.1
 	github.com/go-playground/validator/v10 v10.18.0
 	github.com/hashicorp/go-retryablehttp v0.7.5
 	github.com/jubnzv/go-taskwarrior v0.0.0-20220111032313-0ea4f466b47c
@@ -39,7 +39,7 @@ require (
 	github.com/go-openapi/validate v0.22.1 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/google/uuid v1.5.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-hclog v0.16.2 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -56,7 +56,7 @@ require (
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/teambition/rrule-go v1.7.2 // indirect
-	go.mongodb.org/mongo-driver v1.13.1 // indirect
+	go.mongodb.org/mongo-driver v1.14.0 // indirect
 	go.opentelemetry.io/otel v1.14.0 // indirect
 	go.opentelemetry.io/otel/trace v1.14.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
