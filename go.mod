@@ -9,7 +9,7 @@ require (
 	github.com/emersion/go-webdav v0.4.0
 	github.com/go-co-op/gocron v1.37.0
 	github.com/go-openapi/strfmt v0.22.0
-	github.com/go-playground/validator/v10 v10.18.0
+	github.com/go-playground/validator/v10 v10.20.0
 	github.com/hashicorp/go-retryablehttp v0.7.5
 	github.com/jubnzv/go-taskwarrior v0.0.0-20220111032313-0ea4f466b47c
 	github.com/prometheus/alertmanager v0.26.0
