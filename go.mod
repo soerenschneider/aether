@@ -1,7 +1,6 @@
 module github.com/soerenschneider/aether
 
 go 1.22.0
-
 toolchain go1.23.4
 
 require (
@@ -17,7 +16,7 @@ require (
 	github.com/prometheus/alertmanager v0.28.0
 	github.com/prometheus/client_golang v1.20.5
 	github.com/rs/zerolog v1.33.0
-	github.com/sj14/astral v0.2.0
+	github.com/sj14/astral v0.2.2
 	github.com/sourcegraph/conc v0.3.0
 	go.uber.org/multierr v1.11.0
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
