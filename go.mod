@@ -1,6 +1,7 @@
 module github.com/soerenschneider/aether
 
-go 1.22.0
+go 1.22.3
+
 toolchain go1.23.4
 
 require (
