@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.2](https://github.com/soerenschneider/aether/compare/v1.0.1...v1.0.2) (2025-02-02)
+
+
+### Bug Fixes
+
+* **deps:** bump alpine from 3.19.1 to 3.21.2 ([bf9712c](https://github.com/soerenschneider/aether/commit/bf9712ca3903c51e501b43cb3813ef16348a6580))
+* **deps:** bump github.com/rs/zerolog from 1.32.0 to 1.33.0 ([3a306ff](https://github.com/soerenschneider/aether/commit/3a306ff4cfd9c5f7583f2313f2a0100ea1843e4b))
+* **deps:** bump github.com/sj14/astral from 0.2.0 to 0.2.2 ([5a71a7d](https://github.com/soerenschneider/aether/commit/5a71a7dfff0ad8f0cb8323e9e3873a0ca5e27356))
+* **deps:** bump golang from 1.22.2 to 1.23.5 ([6646149](https://github.com/soerenschneider/aether/commit/6646149a505de50bb61ef795c59b6b9d948d5643))
+* fix compliation errors ([85c2808](https://github.com/soerenschneider/aether/commit/85c2808eaffc5d6ab14661a073f3052b3251c2c8))
+
 ## [1.0.1](https://github.com/soerenschneider/aether/compare/v1.0.0...v1.0.1) (2025-02-02)
 
 
