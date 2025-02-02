@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.0.1](https://github.com/soerenschneider/aether/compare/v1.0.0...v1.0.1) (2025-02-02)
+
+
+### Bug Fixes
+
+* **deps:** bump github.com/emersion/go-webdav from 0.4.0 to 0.6.0 ([4176ca5](https://github.com/soerenschneider/aether/commit/4176ca5b62781e55aaee68325c720babcbc7017b))
+* **deps:** bump github.com/go-playground/validator/v10 ([7ef20ee](https://github.com/soerenschneider/aether/commit/7ef20ee64bff89d4553ebd61cd99b299bba7133c))
+* **deps:** bump github.com/hashicorp/go-retryablehttp ([2f4cf91](https://github.com/soerenschneider/aether/commit/2f4cf91fe667ddbde2eb5ee4dd519794684b3dff))
+* **deps:** bump github.com/prometheus/alertmanager from 0.26.0 to 0.28.0 ([20efe67](https://github.com/soerenschneider/aether/commit/20efe671347e7ce25293e30c384bd4f1c6feb920))
+* **deps:** bump golang from 1.22.0 to 1.22.2 ([a71bd11](https://github.com/soerenschneider/aether/commit/a71bd1127d5d91634de9b6964630645c0014dfda))
+* **deps:** bump golang.org/x/crypto from 0.19.0 to 0.31.0 ([308e22a](https://github.com/soerenschneider/aether/commit/308e22a06e1559721226317c2384d0aadf0f222e))
+* fix email reports ([0a27d6f](https://github.com/soerenschneider/aether/commit/0a27d6f4afe11082f001c937ff38bdf23c447599))
+* fix potential race condition ([9abe28c](https://github.com/soerenschneider/aether/commit/9abe28cc7e7590d8ba041f837935c1ff2b5e5888))
+
 ## 1.0.0 (2024-02-11)
 
 
