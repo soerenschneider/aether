@@ -9,7 +9,7 @@ ENV CGO_ENABLED=0
 RUN go mod download
 RUN make build
 
-FROM alpine:3.19.1 AS final
+FROM alpine:3.21.2 AS final
 
 LABEL maintainer="soerenschneider"
 
