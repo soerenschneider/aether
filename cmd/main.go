@@ -18,11 +18,11 @@ import (
 	"github.com/soerenschneider/aether/internal/datasource"
 	"github.com/soerenschneider/aether/internal/datasource/static"
 	"github.com/soerenschneider/aether/internal/serve"
+	"github.com/sourcegraph/conc/pool"
 
 	"github.com/caarlos0/env/v10"
 	"github.com/go-co-op/gocron"
 	"github.com/rs/zerolog/log"
-	"go.uber.org/multierr"
 )
 
 type Flags struct {
@@ -100,7 +100,7 @@ func main() {
 		}
 
 		if conf.Email.SendAtStart {
-			sendEmail()
+			sendEmail(ctx)
 		}
 	}
 
@@ -171,27 +171,26 @@ func getConfig() (*config.Config, error) {
 
 func getHtml(ctx context.Context, datasources []datasource.Datasource) (string, error) {
 	pieces := make([]string, len(datasources))
-	wg := &sync.WaitGroup{}
-	var errs error
 	ctx, cancel := context.WithTimeout(ctx, time.Second*60)
+
+	p := pool.New().WithErrors().WithContext(ctx).WithMaxGoroutines(8)
+
 	defer cancel()
 	start := time.Now()
 	for index, ds := range datasources {
-		wg.Add(1)
-		go func(index int, ds datasource.Datasource) {
+		f := func(ctx context.Context) error {
 			html, err := ds.GetHtml(ctx)
 			if err != nil {
-				errs = multierr.Append(errs, err)
-			} else {
-				pieces[index] = html
+				return err
 			}
+			pieces[index] = html
 			log.Debug().Msgf("Finished datasource %d (%s) after %v", index, ds.Name(), time.Since(start))
-			wg.Done()
-		}(index, ds)
+			return nil
+		}
+		p.Go(f)
 	}
 
-	wg.Wait()
-
+	errs := p.Wait()
 	log.Debug().Msgf("Updated %d datasources in %v", len(datasources), time.Since(start))
 
 	buffer := bytes.NewBufferString(prefix)
@@ -213,7 +212,9 @@ func scheduleEmail(conf config.Config) error {
 
 	dep.cron = gocron.NewScheduler(location)
 	i, err := dep.cron.Every(1).Day().At(conf.Email.At).Do(func() {
-		sendEmail()
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+		defer cancel()
+		sendEmail(ctx)
 	})
 	dep.cron.StartAsync()
 	log.Info().Msgf("Scheduling daily email at %s, next run at %v", conf.Email.At, i.NextRun())
@@ -221,9 +222,9 @@ func scheduleEmail(conf config.Config) error {
 	return err
 }
 
-func sendEmail() {
+func sendEmail(ctx context.Context) {
 	body, _ := dep.mainDatasource.GetHtml(context.Background())
-	if err := dep.email.Send(body); err != nil {
+	if err := dep.email.SendReport(ctx, "", body); err != nil {
 		log.Error().Err(err).Msg("could not send email")
 		return
 	}
