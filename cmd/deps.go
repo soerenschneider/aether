@@ -255,21 +255,15 @@ func getHttpClient() *http.Client {
 func buildEmail(conf config.EmailConfig) (*serve.Email, error) {
 	var errs error
 	var opts []serve.EmailOpt
-	if len(conf.Password) > 0 {
-		user, err := conf.GetUserName()
-		if err != nil {
-			errs = multierr.Append(errs, err)
-		}
 
-		pass, err := conf.GetPassword()
-		if err != nil {
-			errs = multierr.Append(errs, err)
-		}
+	username, err := conf.GetUsername()
+	if err != nil {
+		errs = multierr.Append(errs, err)
+	}
 
-		if errs != nil {
-			return nil, errs
-		}
-		opts = append(opts, serve.WithPassword(user, pass))
+	password, err := conf.GetPassword()
+	if err != nil {
+		errs = multierr.Append(errs, err)
 	}
 
 	from, err := conf.GetFrom()
@@ -285,7 +279,7 @@ func buildEmail(conf config.EmailConfig) (*serve.Email, error) {
 	if errs != nil {
 		return nil, errs
 	}
-	return serve.NewEmail(from, recipients, conf.Host, opts...)
+	return serve.NewEmail(from, recipients, conf.Host, username, password, opts...)
 }
 
 type ZerologAdapter struct {

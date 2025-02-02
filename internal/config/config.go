@@ -59,8 +59,8 @@ type EmailConfig struct {
 	IsUtc       bool   `yaml:"is_utc"`
 	SendAtStart bool   `yaml:"send_at_start"`
 
-	UserName     string `yaml:"username"`
-	UserNameFile string `yaml:"username_file"`
+	Username     string `yaml:"username"`
+	UsernameFile string `yaml:"username_file"`
 	Password     string `yaml:"password"`
 	PasswordFile string `yaml:"password_file"`
 
@@ -71,12 +71,12 @@ type EmailConfig struct {
 	Host           string   `yaml:"host" validate:"hostname_port"`
 }
 
-func (c *EmailConfig) GetUserName() (string, error) {
-	if len(c.UserName) > 0 {
-		return c.UserName, nil
+func (c *EmailConfig) GetUsername() (string, error) {
+	if len(c.Username) > 0 {
+		return c.Username, nil
 	}
 
-	data, err := os.ReadFile(c.UserNameFile)
+	data, err := os.ReadFile(c.UsernameFile)
 	if err != nil {
 		return "", err
 	}
