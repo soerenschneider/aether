@@ -5,9 +5,9 @@ toolchain go1.22.5
 
 require (
 	github.com/caarlos0/env/v10 v10.0.0
-	github.com/emersion/go-ical v0.0.0-20220601085725-0864dccc089f
-	github.com/emersion/go-vcard v0.0.0-20191221110513-5f81fa0d3cc7
-	github.com/emersion/go-webdav v0.4.0
+	github.com/emersion/go-ical v0.0.0-20240127095438-fc1c9d8fb2b6
+	github.com/emersion/go-vcard v0.0.0-20230815062825-8fda7d206ec9
+	github.com/emersion/go-webdav v0.6.0
 	github.com/go-co-op/gocron v1.37.0
 	github.com/go-openapi/strfmt v0.23.0
 	github.com/go-playground/validator/v10 v10.18.0
@@ -58,7 +58,7 @@ require (
 	github.com/prometheus/common v0.61.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
-	github.com/teambition/rrule-go v1.7.2 // indirect
+	github.com/teambition/rrule-go v1.8.2 // indirect
 	go.mongodb.org/mongo-driver v1.14.0 // indirect
 	go.opentelemetry.io/otel v1.24.0 // indirect
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
