@@ -114,12 +114,12 @@ func (c *CaldavDatasource) filter(entries []Entry) []Entry {
 }
 
 func (c *CaldavDatasource) getEntries(ctx context.Context) (*CaldavData, error) {
-	homeSet, err := c.davClient.FindCalendarHomeSet(c.username)
+	homeSet, err := c.davClient.FindCalendarHomeSet(ctx, c.username)
 	if err != nil {
 		return nil, fmt.Errorf("finding home set: %w", err)
 	}
 
-	calendars, err := c.davClient.FindCalendars(homeSet)
+	calendars, err := c.davClient.FindCalendars(ctx, homeSet)
 	if err != nil {
 		return nil, fmt.Errorf("finding calendars: %w", err)
 	}
@@ -127,7 +127,7 @@ func (c *CaldavDatasource) getEntries(ctx context.Context) (*CaldavData, error) 
 		return nil, fmt.Errorf("no calendars found")
 	}
 
-	resp, err := c.davClient.QueryCalendar(calendars[0].Path, &caldav.CalendarQuery{
+	resp, err := c.davClient.QueryCalendar(ctx, calendars[0].Path, &caldav.CalendarQuery{
 		CompFilter: caldav.CompFilter{
 			Name: "VCALENDAR",
 		},

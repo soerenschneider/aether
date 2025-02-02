@@ -142,13 +142,13 @@ func (c *CarddavDatasource) filter(entries []Card) []Card {
 	return filtered
 }
 
-func (c *CarddavDatasource) getEntries(_ context.Context) (*CarddavData, error) {
-	homeSet, err := c.davClient.FindAddressBookHomeSet(c.username)
+func (c *CarddavDatasource) getEntries(ctx context.Context) (*CarddavData, error) {
+	homeSet, err := c.davClient.FindAddressBookHomeSet(ctx, c.username)
 	if err != nil {
 		return nil, fmt.Errorf("carddav: could not find homeset %w", err)
 	}
 
-	addressbooks, err := c.davClient.FindAddressBooks(homeSet)
+	addressbooks, err := c.davClient.FindAddressBooks(ctx, homeSet)
 	if err != nil {
 		return nil, fmt.Errorf("carddav: could not find addressbooks: %w", err)
 	}
@@ -168,7 +168,7 @@ func (c *CarddavDatasource) getEntries(_ context.Context) (*CarddavData, error) 
 		},
 	}
 
-	resp, err := c.davClient.QueryAddressBook(addressbooks[0].Path, &q)
+	resp, err := c.davClient.QueryAddressBook(ctx, addressbooks[0].Path, &q)
 	if err != nil {
 		return nil, fmt.Errorf("querying first calendar %q: %w", addressbooks[0].Path, err)
 	}
