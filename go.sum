@@ -126,8 +126,8 @@ github.com/rogpeppe/go-internal v1.11.0/go.mod h1:ddIwULY96R17DhadqLgMfk9H9tvdUz
 github.com/rs/xid v1.5.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
 github.com/rs/zerolog v1.33.0 h1:1cU2KZkvPxNyfgEmhHAz/1A9Bz+llsdYzklWFzgp0r8=
 github.com/rs/zerolog v1.33.0/go.mod h1:/7mN4D5sKwJLZQ2b/znpjC3/GQWY/xaDXUM0kKWRHss=
-github.com/sj14/astral v0.2.0 h1:+NzmCbSXW+lx2fHSAZYHlWsy5//xzlNuBe5aHoCf8UU=
-github.com/sj14/astral v0.2.0/go.mod h1:OjYywuoAlFXel4wCCaBj9niVf5PEh1bf/9phZ7kF4Fg=
+github.com/sj14/astral v0.2.2 h1:izIQbcrpk2wnNKE3V/GhqwTHzzXUf/RudNRjYVepfDA=
+github.com/sj14/astral v0.2.2/go.mod h1:Kt/u/m06o+wp9daFX/PCo2c63r8etx94ejGYhGj/GFg=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
 github.com/sourcegraph/conc v0.3.0/go.mod h1:Sdozi7LEKbFPqYX2/J+iBAM6HpqSLTASQIKqDmF7Mt0=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
