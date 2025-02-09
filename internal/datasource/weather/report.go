@@ -81,12 +81,16 @@ func GenerateWeatherReport(entries []*WeatherEntry, currentTime time.Time) []str
 		}
 		sort.Strings(descriptions)
 
-		// Determine the most dominant emoji for this slot
-		dominantEmoji := getDominantEmoji(slotData.emojiFreq)
+		var emojis []string
+		for emoji := range slotData.emojiFreq {
+			emojis = append(emojis, emoji)
+		}
+		sort.Strings(emojis) // Sort for consistent order
+		emojiString := strings.Join(emojis, " ")
 
 		avgTemp := slotData.tempSum / float64(slotData.count)
 		report := fmt.Sprintf("%s %s will have %s with an avg. temp of %.0f°C",
-			dominantEmoji, slot, strings.Join(descriptions, " and "), avgTemp)
+			emojiString, slot, strings.Join(descriptions, " and "), avgTemp)
 
 		// this should probably never happen. if the description doesn't mention rain but there's
 		// precipitation, we add it to the report.
