@@ -1,0 +1,23 @@
+{{ if .Tasks }}
+<h2 id="taskwarrior" class="collapsible">Taskwarrior</h2>
+<table>
+    <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Name</th>
+        <th scope="col">Due</th>
+        <th scope="col">Project</th>
+        <th scope="col">Tags</th>
+        <th scope="col">Urgency</th>
+    </tr>
+    {{range .Tasks}}
+    <tr>
+        <td>{{ .Id }}</td>
+        <td>{{ .Description }}</td>
+        <td class="{{ getCssClass .Due }}">{{ formatDue .Due }}</td>
+        <td>{{ formatProject .Project }}</td>
+        <td>{{ formatTags .Tags }}</td>
+        <td>{{ printf "%.1f" .Urgency }}</td>
+    </tr>
+    {{end}}
+</table>
+{{ end }}

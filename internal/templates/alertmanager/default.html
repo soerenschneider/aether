@@ -1,0 +1,15 @@
+<h2 class="collapsible">Alerts</h2>
+<table>
+    <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Severity</th>
+        <th scope="col">Count</th>
+    </tr>
+    {{range .}}
+    <tr>
+        <td>{{.Name}}</td>
+        <td>{{.Severity}}</td>
+        <td>{{.Count}}</td>
+    </tr>
+    {{end}}
+</table>

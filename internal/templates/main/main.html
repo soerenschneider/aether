@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>aether</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="refresh" content="60">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📌</text></svg>">
+    <style>
+        /* General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Collapsible Button */
+        .collapsible {
+            background-color: #555;
+            color: white;
+            cursor: pointer;
+            border: none;
+            text-align: left;
+            outline: none;
+            padding: 15px;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border-radius: 8px;
+        }
+
+        .collapsible:hover, .active {
+            background-color: #444;
+            transform: scale(1.02);
+        }
+
+        /* Headings */
+        h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.5em;
+            color: #333;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            margin: 0 0 20px 0;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        td[rowspan] {
+            border-top: 2px solid #555;   /* Darker border on top */
+            border-bottom: 2px solid #555; /* Darker border on bottom */
+            font-weight: bold;
+            text-align: center;
+            background-color: #e0e0e0 !important; /* Light gray for category cells */
+        }
+
+        /* If the first row of a category is even, apply the alternate row color */
+        tr:nth-child(even) td[rowspan] {
+            background-color: #d9d9d9 !important; /* Slightly darker gray */
+        }
+
+        th {
+            background-color: #444;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e0e0e0;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Color Coding */
+        .red { background-color: #ff6b6b; color: white; }
+        .green { background-color: #4caf50; color: white; }
+        .yellow { background-color: #ffeb3b; color: black; }
+        .orange { background-color: #ff9800; color: white; }
+        .blue { background-color: #2196f3; color: white; }
+        .lightblue { background-color: #03a9f4; color: white; }
+
+        /* Special Row Styling */
+        .today-row {
+            background-color: #e3f2fd; /* Light blue */
+            font-weight: bold;
+        }
+
+        .tomorrow-row {
+            background-color: #f0f0f0; /* Light gray */
+        }
+
+        .day-separator {
+            background-color: #ccc;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+        }
+
+        /* Day Header */
+        .day-header {
+            padding: 12px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background-color: #444;
+            color: white;
+            text-align: center;
+        }
+
+        /* Location Styling */
+        .location {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 1080px) {
+            body {
+                font-size: 3vw;
+            }
+
+            th, td {
+                font-size: 3vw;
+            }
+
+            .location {
+                font-size: 2.5vw;
+            }
+
+            .time {
+                display: block;
+                font-size: 2.5vw;
+            }
+
+            .collapsible {
+                font-size: 3vw;
+            }
+        }
+
+    </style>
+</head>
+<body>
+{{ .Summary }}
+{{ .Data }}
+<script>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.display === "none") {
+                content.removeAttribute("style")
+            } else {
+                content.style.display = "none";
+            }
+        });
+    }
+
+    function toggleCollapse(event) {
+        const clickedRow = event.currentTarget; // The clicked <tr> (category header row)
+        const table = clickedRow.closest('table'); // The closest table
+        let isCollapsed = clickedRow.classList.contains('collapsed'); // Check if the row is already collapsed
+
+        // Find all the rows following the clicked category header
+        let nextRow = clickedRow.nextElementSibling;
+
+        while (nextRow && !nextRow.classList.contains('category') && !nextRow.classList.contains('header')) {
+            // If the row is currently collapsed, show it, otherwise hide it
+            if (isCollapsed) {
+                nextRow.style.display = ''; // Show the row
+            } else {
+                nextRow.style.display = 'none'; // Hide the row
+            }
+            nextRow = nextRow.nextElementSibling; // Move to the next row
+        }
+
+        // Toggle the collapsed state on the clicked category header row
+        clickedRow.classList.toggle('collapsed', !isCollapsed);
+    }
+
+    // Add event listeners to all category header rows
+    document.querySelectorAll('tr.category.header').forEach(row => {
+        row.addEventListener('click', toggleCollapse);
+    });
+
+</script>
+</body>
+</html>

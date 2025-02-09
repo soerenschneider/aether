@@ -1,0 +1,45 @@
+{{if .Entries }}
+<h2 id="{{ .HtmlId }}" class="collapsible">Agenda {{ .From.Format "02.01.06" }} – {{ .To.Format "02.01.06" }}</h2>
+<table>
+    <tr>
+        <th scope="col" style="width:70%;">Summary</th>
+        <th scope="col" style="width:30%;">Date</th>
+    </tr>
+
+    {{ $prevCategory := "" }}
+    {{ range .Entries }}
+    {{ $category := "" }}
+
+    {{ if lt .Start.Unix $.ThisWeekEnd.Unix }}
+    {{ $category = "This Week" }}
+    {{ else if lt .Start.Unix $.NextWeekEnd.Unix }}
+    {{ $category = "Next Week" }}
+    {{ else if lt .Start.Unix $.NextNextWeekEnd.Unix }}
+    {{ $category = "Two Weeks" }}
+    {{ end }}
+
+    <!-- Insert category row if it's a new section -->
+    {{ if ne $category $prevCategory }}
+    <tr class="category-header">
+        <td colspan="2"><strong>{{ $category }}</strong></td>
+    </tr>
+    {{ end }}
+
+    <tr>
+        <td>
+            {{ .Summary }}
+            {{ if .Location }}<br/>
+            <span class="location">{{ if .LocationUrl }}<a href="{{ .LocationUrl }}" target="_blank">{{ fixLocation .Location }}</a>{{ else }}{{ fixLocation .Location }}{{ end }}</span>
+            {{ end }}
+        </td>
+        <td>
+            <span class="date">{{ index .Formatted 0 }}</span>
+            {{ if eq (len .Formatted) 2}}<span class="time">{{ index .Formatted 1 }}</span>
+            {{ end }}
+        </td>
+    </tr>
+
+    {{ $prevCategory = $category }}
+    {{ end }}
+</table>
+{{end }}

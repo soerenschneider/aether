@@ -1,0 +1,17 @@
+{{ if .Cards }}
+<h2 id="{{ .HtmlId }}" class="collapsible">Anniversaries {{ .From.Format "02.01.06" }} – {{ .To.Format "02.01.06" }}</h2>
+<table>
+    <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Date</th>
+        <th scope="col">Type</th>
+    </tr>
+    {{ range .Cards }}
+    <tr>
+        <td>{{ .Name }}</td>
+        <td>{{ .DateFormatted }} ({{ .Years }})</td>
+        <td>{{ .Type }}</td>
+    </tr>
+    {{ end }}
+</table>
+{{ end }}

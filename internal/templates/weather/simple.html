@@ -1,0 +1,32 @@
+<h2 id="{{ .HtmlId }}" class="collapsible">Weather {{.City.Name }} <small>☀️{{ .City.SunriseTime.Format "15:04" }} 🌚{{ .City.SunsetTime.Format "15:04" }}</small></h2>
+<a href="https://openweathermap.org/city/{{ .City.ID }}" target=”_blank”>
+    <table>
+        <thead>
+        <tr>
+            <th scope="col">Time</th>
+            <th scope="col">Desc.</th>
+            <th scope="col">Temp</th>
+            <th scope="col">Pop</th>
+            <th scope="col">Rain</th>
+            <th scope="col">Hum</th>
+            <th scope="col">Wind</th>
+            <th scope="col">Clouds</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{ range $i, $val := .List }}
+        <tr>
+            <td>{{ .Time.Format "15:00" }} </td>
+            <td>{{ .WeatherEmoji }}{{ .WeatherDescription }}</td>
+            <td>{{ printf "%.0f" .Main.Temp }} ({{ printf "%.0f" .Main.FeelsLike }})</td>
+            <td>{{ .Pop }}</td>
+            <td>{{ .Rain.H3 }}</td>
+            <td>{{ .Main.Humidity }}</td>
+            <td>{{ printf "%.0f" .Wind.Speed }}{{ if gt .Wind.Speed 0.0 }} {{ .Wind.Direction }}{{ end }}</td>
+            <td>{{ .Clouds.All }}</td>
+        </tr>
+        {{ end }}
+        </tbody>
+
+    </table>
+</a>

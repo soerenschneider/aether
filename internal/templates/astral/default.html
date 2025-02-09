@@ -1,0 +1,23 @@
+<h2 class="collapsible">Photo</h2>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Start</th>
+        <th>End</th>
+    </tr>
+    <tr>
+        <td>Sun</td>
+        <td>{{ .Sunrise.Format "15:04" }} {{ degreesToCompass .AzimuthSunrise }}</td>
+        <td>{{ .Sunset.Format "15:04" }} {{ degreesToCompass .AzimuthSunset }}</td>
+    </tr>
+    <tr>
+        <td>Blue Hour 🌌</td>
+        <td>{{ .BlueHourRising.Start.Format "15:04" }} - {{ .BlueHourRising.End.Format "15:04" }} {{ degreesToCompass .AzimuthBlueHourRising }}</td>
+        <td>{{ .BlueHourSetting.Start.Format "15:04" }} - {{ .BlueHourSetting.End.Format "15:04" }} {{ degreesToCompass .AzimuthBlueHourSetting }}</td>
+    </tr>
+    <tr>
+        <td>Golden Hour 🌇</td>
+        <td>{{ .GoldenHourRising.Start.Format "15:04" }} - {{ .GoldenHourRising.End.Format "15:04" }}  {{ degreesToCompass .AzimuthGoldenHourRising }}</td>
+        <td>{{ .GoldenHourSetting.Start.Format "15:04" }} - {{ .GoldenHourSetting.End.Format "15:04" }} {{ degreesToCompass .AzimuthGoldenHourSetting }}</td>
+    </tr>
+</table>

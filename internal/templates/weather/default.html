@@ -1,0 +1,49 @@
+<h2 id="{{ .HtmlId }}" class="collapsible">Weather {{.City.Name }} <small>☀️{{ .City.SunriseTime.Format "15:04" }} 🌚{{ .City.SunsetTime.Format "15:04" }}</small></h2>
+<a href="https://openweathermap.org/city/{{ .City.ID }}" target=”_blank”>
+    <table>
+        <thead>
+        <tr>
+            <th scope="col">Time</th>
+            <th scope="col">Temp (°C)</th>
+            <th scope="col">Pop (%)</th>
+            <th scope="col">Rain (mm)</th>
+            <th scope="col">Hum (%)</th>
+            <th scope="col">Wind (m/s)</th>
+            <th scope="col">Clouds (%)</th>
+            <th scope="col">Vis. (%)</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{ $prevDate := "" }}
+        {{ range $i, $val := .List }}
+        {{ $currDate := .Time.Format "2006-01-02" }}
+
+        <!-- Insert a separator row when the date changes -->
+        {{ if ne $currDate $prevDate }}
+        <tr class="day-separator">
+            <td colspan="8" class="day-header">
+                {{ if eq $currDate $.Now }} Today
+                {{ else if eq $currDate $.Tomorrow }} Tomorrow
+                {{ else }} {{ .Time | weekday }}
+                {{ end }}
+            </td>
+        </tr>
+        {{ end }}
+
+        <tr class="{{ if eq $currDate $.Now }}today-row{{ else if eq $currDate $.Tomorrow }}tomorrow-row{{ else }}future-row{{ end }}">
+            <td>{{ .Time.Format "15:00" }} {{ .WeatherEmoji }}<br/>{{ .WeatherDescription }}</td>
+            <td class="{{ getClassForTemp .Main.FeelsLike }}">{{ printf "%.0f" .Main.Temp }} ({{ printf "%.0f" .Main.FeelsLike }})</td>
+            <td class="{{ getClassForPop .Pop }}">{{ .Pop }}</td>
+            <td class="{{ getClassForRain .Rain.H3 }}">{{ .Rain.H3 }}</td>
+            <td class="{{ getClassForHumidity .Main.Humidity }}">{{ .Main.Humidity }}</td>
+            <td class="{{ getClassForWind .Wind.Speed }}">{{ printf "%.0f" .Wind.Speed }}{{ if gt .Wind.Speed 0.0 }} {{ .Wind.DirectionEmoji }}{{ end }}</td>
+            <td class="{{ getClassForClouds .Clouds.All }}">{{ .Clouds.All }}</td>
+            <td class="{{ getClassForVisibility .VisibilityPercent }}">{{ .VisibilityPercent }}</td>
+        </tr>
+
+        {{ $prevDate = $currDate }}
+        {{ end }}
+        </tbody>
+
+    </table>
+</a>

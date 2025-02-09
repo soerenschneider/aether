@@ -1,0 +1,22 @@
+<h2 class="collapsible">Summary</h2>
+<table>
+    <thead>
+    <tr>
+        <th scope="row">Category</th>
+        <th scope="row">Event</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{ range $_, $category := . }}
+    {{ $rowspan := len $category.Data }}
+    {{ range $index, $event := $category.Data }}
+    <tr>
+        {{ if eq $index 0 }}
+        <td rowspan="{{ $rowspan }}"><a href="#{{ nameToId $category.Name }}">{{ $category.Name }}</a></td>
+        {{ end }}
+        <td>{{ $event }}</td>
+    </tr>
+    {{ end }}
+    {{ end }}
+    </tbody>
+</table>

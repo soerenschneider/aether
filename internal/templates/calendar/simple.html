@@ -1,0 +1,18 @@
+{{if .Entries }}
+<h2 id="{{ .HtmlId }}" class="collapsible">Agenda {{ .From.Format "02.01.06" }} – {{ .To.Format "02.01.06" }}</h2>
+<table>
+    <tr>
+        <th scope="col">Summary</th>
+        <th scope="col">Date</th>
+        <th scope="col">Location</th>
+    </tr>
+
+    {{ range .Entries }}
+    <tr>
+        <td>{{ .Summary }}</td>
+        <td>{{ index .Formatted 0 }}{{ if eq (len .Formatted) 2}} {{ index .Formatted 1 }}{{ end }}</td>
+        <td>{{ fixLocation .Location }}</td>
+    </tr>
+    {{ end }}
+</table>
+{{end }}
