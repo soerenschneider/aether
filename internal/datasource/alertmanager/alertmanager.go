@@ -5,7 +5,6 @@ import (
 	"context"
 	"html/template"
 	"sort"
-	"sync"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/prometheus/alertmanager/api/v2/client"
@@ -29,7 +28,6 @@ type AlertmanagerDatasource struct {
 	basePath string
 	scheme   string
 
-	once            sync.Once
 	defaultTemplate *template.Template
 	simpleTemplate  *template.Template
 	limit           int

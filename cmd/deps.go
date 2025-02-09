@@ -17,7 +17,6 @@ import (
 	"github.com/soerenschneider/aether/internal/datasource/caldav"
 	"github.com/soerenschneider/aether/internal/datasource/carddav"
 	"github.com/soerenschneider/aether/internal/datasource/static"
-	"github.com/soerenschneider/aether/internal/datasource/stocks"
 	"github.com/soerenschneider/aether/internal/datasource/taskwarrior"
 	"github.com/soerenschneider/aether/internal/datasource/weather"
 	"github.com/soerenschneider/aether/internal/serve"
@@ -193,18 +192,6 @@ func buildAlertmanager(conf *config.AlertmanagerConfig) (*alertmanager.Alertmana
 	}
 
 	return alertmanager.New(conf.Host, templateData, opts...)
-}
-
-func buildStocks(conf *config.StocksConfig) (*stocks.StocksDatasource, error) {
-	opts := []stocks.Opts{
-		stocks.WithHttpClient(httpClient),
-	}
-
-	if len(conf.TemplateFile) > 0 {
-		opts = append(opts, stocks.WithTemplateFile(conf.TemplateFile))
-	}
-
-	return stocks.New(conf.Symbols, opts...)
 }
 
 func buildTaskwarrior(conf *config.TaskwarriorConfig) (*taskwarrior.Datasource, error) {
