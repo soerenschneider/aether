@@ -121,16 +121,3 @@ func formatRainAmount(precip float64) string {
 func ContainsRain(report string) bool {
 	return strings.Contains(strings.ToLower(report), "rain")
 }
-
-// getDominantEmoji finds the most frequently occurring emoji in a given slot.
-func getDominantEmoji(emojiFreq map[string]int) string {
-	var dominantEmoji string
-	maxCount := 0
-	for emoji, count := range emojiFreq {
-		if count > maxCount {
-			dominantEmoji = emoji
-			maxCount = count
-		}
-	}
-	return dominantEmoji
-}
