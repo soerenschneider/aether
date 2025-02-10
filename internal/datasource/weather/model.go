@@ -134,7 +134,7 @@ func (w *Wind) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &tmp); err != nil {
 		return err
 	}
-	tmp.DirectionEmoji, tmp.Direction = pkg.TranslateDegreeToDirection(float64(tmp.Deg))
+	tmp.Direction, tmp.DirectionEmoji = pkg.TranslateDegreeToDirection(float64(tmp.Deg))
 
 	*w = Wind(tmp)
 	return nil
