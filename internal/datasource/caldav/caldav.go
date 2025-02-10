@@ -138,22 +138,6 @@ func (c *CaldavDatasource) GetData(ctx context.Context) (*internal.Data, error) 
 	}, nil
 }
 
-func getSummary(entries []Entry) []string {
-	now := time.Now()
-	var ret []string
-	for _, entry := range entries {
-		isToday := pkg.IsToday(entry.Start, now)
-		isOngoing := entry.Start.Before(now) && entry.End.After(now)
-
-		if isToday || isOngoing {
-			b := fmt.Sprintf("📅 %s, %s", entry.Summary, strings.Join(entry.Formatted, " "))
-			ret = append(ret, b)
-		}
-	}
-
-	return ret
-}
-
 func sortEntries(entries []Entry) {
 	sort.Slice(entries, func(i, j int) bool {
 		return entries[i].Start.Before(entries[j].Start)

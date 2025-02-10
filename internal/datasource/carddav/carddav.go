@@ -120,7 +120,7 @@ func (c *CarddavDatasource) GetData(ctx context.Context) (*internal.Data, error)
 	}, nil
 }
 
-func getSummary(entries []Card, now time.Time) []string {
+func getSummary(entries []Card, now time.Time, addSummaryForNoEvents bool) []string {
 	var ret []string
 	for _, entry := range entries {
 		anniversary := time.Date(now.Year(), entry.Anniversary.Month(), entry.Anniversary.Day(), 12, 0, 0, 0, time.UTC)
@@ -128,6 +128,10 @@ func getSummary(entries []Card, now time.Time) []string {
 			b := fmt.Sprintf("%s, %s", entry.Name, entry.Type)
 			ret = append(ret, b)
 		}
+	}
+
+	if addSummaryForNoEvents && len(ret) == 0 {
+		ret = append(ret, "✅ No anniversaries or birthdays today")
 	}
 
 	return ret

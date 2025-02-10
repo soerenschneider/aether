@@ -5,9 +5,7 @@ import (
 	"time"
 )
 
-func GenerateReport(tasks []Task) []string {
-	// Get the current date (without time for comparison)
-	now := time.Now()
+func GenerateReport(tasks []Task, now time.Time, addSummaryForNoEvents bool) []string {
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 
 	// Track affected tasks
@@ -57,6 +55,10 @@ func GenerateReport(tasks []Task) []string {
 		} else {
 			report = append(report, fmt.Sprintf("📋 %d tasks due within the next 7 days", len(dueIn7DaysTasks)))
 		}
+	}
+
+	if addSummaryForNoEvents && len(report) == 0 {
+		report = append(report, "✅ No tasks due next 7d")
 	}
 
 	return report
