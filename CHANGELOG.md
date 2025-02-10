@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.0.0 (2025-02-10)
+
+
+### Features
+
+* add ids to templates to make links work ([96fb4bd](https://github.com/soerenschneider/aether/commit/96fb4bdec84c3b2e9394fcd129b12402bc4f7b58))
+* allow exclusion of datasources from summary ([4aada91](https://github.com/soerenschneider/aether/commit/4aada91be6fd91acf802ecbe4b771115e9ff14ca))
+* improve templates ([98f5053](https://github.com/soerenschneider/aether/commit/98f5053a3a551d343bdf80a6671fa6c4551b858c))
+
+
+### Bug Fixes
+
+* fix minifier ([db5bccb](https://github.com/soerenschneider/aether/commit/db5bccb18d34379f27541912171e62c5b2cdc938))
+* fix parameter mixup ([c713165](https://github.com/soerenschneider/aether/commit/c7131651545f48880dff3362b8f5250a1da9c896))
+
 ## [1.0.2](https://github.com/soerenschneider/aether/compare/v1.0.1...v1.0.2) (2025-02-02)
 
 
