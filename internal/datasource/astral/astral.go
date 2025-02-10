@@ -15,10 +15,11 @@ import (
 )
 
 type Astral struct {
-	location        *time.Location
-	observer        astral.Observer
-	defaultTemplate *template.Template
-	simpleTemplate  *template.Template
+	location           *time.Location
+	observer           astral.Observer
+	defaultTemplate    *template.Template
+	simpleTemplate     *template.Template
+	excludeFromSummary bool
 }
 
 type Lat float64
@@ -80,8 +81,13 @@ func (b *Astral) GetData(_ context.Context) (*internal.Data, error) {
 		}
 	}
 
+	var summary []string
+	if !b.excludeFromSummary {
+		summary = getSummary(*data, time.Now())
+	}
+
 	return &internal.Data{
-		Summary:                    nil,
+		Summary:                    summary,
 		RenderedDefaultTemplate:    renderedDefaultTemplate.Bytes(),
 		RenderedSimplifiedTemplate: renderedSimpleTemplate.Bytes(),
 	}, nil

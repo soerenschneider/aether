@@ -9,9 +9,10 @@ import (
 type StocksConfig struct {
 	Symbols []string `yaml:"symbols"`
 
-	TemplateFile string        `yaml:"template_file" validate:"omitempty,filepath"`
-	Cached       bool          `yaml:"cached"`
-	CacheExpiry  time.Duration `yaml:"cache_expiry"`
+	TemplateFile       string        `yaml:"template_file" validate:"omitempty,filepath"`
+	Cached             bool          `yaml:"cached"`
+	CacheExpiry        time.Duration `yaml:"cache_expiry"`
+	ExcludeFromSummary bool          `yaml:"exclude_from_summary"`
 }
 
 func (ds *StocksConfig) UnmarshalYAML(node *yaml.Node) error {

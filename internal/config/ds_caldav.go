@@ -13,9 +13,10 @@ type CalDavConfig struct {
 	Password     string `yaml:"password"`
 	PasswordFile string `yaml:"password_file"`
 
-	TemplateFile string        `yaml:"template_file" validate:"omitempty,filepath"`
-	Cached       bool          `yaml:"cached"`
-	CacheExpiry  time.Duration `yaml:"cache_expiry"`
+	TemplateFile       string        `yaml:"template_file" validate:"omitempty,filepath"`
+	Cached             bool          `yaml:"cached"`
+	CacheExpiry        time.Duration `yaml:"cache_expiry"`
+	ExcludeFromSummary bool          `yaml:"exclude_from_summary"`
 }
 
 func (ds *CalDavConfig) UnmarshalYAML(node *yaml.Node) error {

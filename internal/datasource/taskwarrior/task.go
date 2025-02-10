@@ -26,11 +26,12 @@ type Client interface {
 type Opt func(datasource *Datasource) error
 
 type Datasource struct {
-	limit           int
-	defaultTemplate *template.Template
-	simpleTemplate  *template.Template
-	taskRcFile      string
-	client          Client
+	limit              int
+	defaultTemplate    *template.Template
+	simpleTemplate     *template.Template
+	taskRcFile         string
+	client             Client
+	excludeFromSummary bool
 }
 
 func New(client Client, templateData templates.TemplateData, opts ...Opt) (*Datasource, error) {
@@ -107,8 +108,13 @@ func (t *Datasource) GetData(ctx context.Context) (*internal.Data, error) {
 		}
 	}
 
+	var summary []string
+	if !t.excludeFromSummary {
+		summary = GenerateReport(tasks, time.Now(), true)
+	}
+
 	return &internal.Data{
-		Summary:                    GenerateReport(tasks),
+		Summary:                    summary,
 		RenderedDefaultTemplate:    defaultTemplateRendered.Bytes(),
 		RenderedSimplifiedTemplate: simpleTemplateRendered.Bytes(),
 	}, err

@@ -30,10 +30,11 @@ type CarddavDatasource struct {
 	password      string
 	lookaheadDays int
 
-	davClient       *carddav.Client
-	regularTemplate *template.Template
-	simpleTemplate  *template.Template
-	httpClient      *http.Client
+	davClient          *carddav.Client
+	regularTemplate    *template.Template
+	simpleTemplate     *template.Template
+	httpClient         *http.Client
+	excludeFromSummary bool
 }
 
 func New(endpoint string, templateData templates.TemplateData, opts ...Opt) (*CarddavDatasource, error) {
@@ -107,8 +108,13 @@ func (c *CarddavDatasource) GetData(ctx context.Context) (*internal.Data, error)
 		return nil, err
 	}
 
+	var summary []string
+	if !c.excludeFromSummary {
+		summary = getSummary(data.Cards, time.Now(), true)
+	}
+
 	return &internal.Data{
-		Summary:                    getSummary(data.Cards, time.Now()),
+		Summary:                    summary,
 		RenderedDefaultTemplate:    regularTemplateData.Bytes(),
 		RenderedSimplifiedTemplate: simpleTemplateData.Bytes(),
 	}, nil

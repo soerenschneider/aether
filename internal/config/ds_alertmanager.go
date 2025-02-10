@@ -15,6 +15,7 @@ type AlertmanagerConfig struct {
 	Cached             bool          `yaml:"cached"`
 	CacheExpiry        time.Duration `yaml:"cache_expiry"`
 	SimpleTemplateFile string        `yaml:"simple_template_file" validate:"omitempty,filepath"`
+	ExcludeFromSummary bool          `yaml:"exclude_from_summary"`
 }
 
 func (ds *AlertmanagerConfig) UnmarshalYAML(node *yaml.Node) error {

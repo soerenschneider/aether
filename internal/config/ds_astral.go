@@ -10,9 +10,10 @@ type AstralConfig struct {
 	Latitude  float64 `yaml:"latitude" validate:"latitude"`
 	Longitude float64 `yaml:"longitude" validate:"longitude"`
 
-	TemplateFile string        `yaml:"template_file" validate:"omitempty,filepath"`
-	Cached       bool          `yaml:"cached"`
-	CacheExpiry  time.Duration `yaml:"cache_expiry"`
+	TemplateFile       string        `yaml:"template_file" validate:"omitempty,filepath"`
+	Cached             bool          `yaml:"cached"`
+	CacheExpiry        time.Duration `yaml:"cache_expiry"`
+	ExcludeFromSummary bool          `yaml:"exclude_from_summary"`
 }
 
 func (ds *AstralConfig) UnmarshalYAML(node *yaml.Node) error {

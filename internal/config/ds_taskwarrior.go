@@ -7,11 +7,14 @@ import (
 )
 
 type TaskwarriorConfig struct {
-	TemplateFile string        `yaml:"template_file" validate:"omitempty,filepath"`
-	Cached       bool          `yaml:"cached"`
-	CacheExpiry  time.Duration `yaml:"cache_expiry"`
-	TaskRcFile   string        `yaml:"taskrc_file" validate:"omitempty,file"`
-	Limit        int           `yaml:"limit"`
+	TaskRcFile string `yaml:"taskrc_file" validate:"omitempty,file"`
+	Limit      int    `yaml:"limit"`
+
+	TemplateFile string `yaml:"template_file" validate:"omitempty,filepath"`
+
+	Cached             bool          `yaml:"cached"`
+	CacheExpiry        time.Duration `yaml:"cache_expiry"`
+	ExcludeFromSummary bool          `yaml:"exclude_from_summary"`
 }
 
 func (ds *TaskwarriorConfig) UnmarshalYAML(node *yaml.Node) error {

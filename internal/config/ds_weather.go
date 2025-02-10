@@ -17,6 +17,8 @@ type WeatherConfig struct {
 	CacheExpiry  time.Duration `yaml:"cache_expiry"`
 	NiceName     string        `yaml:"nice_name"`
 	Count        int           `yaml:"count"`
+
+	ExcludeFromSummary bool `yaml:"exclude_from_summary"`
 }
 
 func (ds *WeatherConfig) UnmarshalYAML(node *yaml.Node) error {

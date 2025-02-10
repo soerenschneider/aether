@@ -24,9 +24,10 @@ type Client interface {
 }
 
 type WeatherDatasource struct {
-	client          Client
-	regularTemplate *template.Template
-	simpleTemplate  *template.Template
+	client             Client
+	regularTemplate    *template.Template
+	simpleTemplate     *template.Template
+	excludeFromSummary bool
 }
 
 func New(client Client, templateData templates.TemplateData) (*WeatherDatasource, error) {
@@ -102,8 +103,13 @@ func (w *WeatherDatasource) GetData(ctx context.Context) (*internal.Data, error)
 		}
 	}
 
+	var summary []string
+	if !w.excludeFromSummary {
+		summary = GenerateWeatherReport(data.List, time.Now())
+	}
+
 	return &internal.Data{
-		Summary:                    GenerateWeatherReport(data.List, time.Now()),
+		Summary:                    summary,
 		RenderedDefaultTemplate:    regularTemplateData.Bytes(),
 		RenderedSimplifiedTemplate: simpleTemplateData.Bytes(),
 	}, nil

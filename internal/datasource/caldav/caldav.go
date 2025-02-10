@@ -36,9 +36,10 @@ type CaldavDatasource struct {
 	davClient *caldav.Client
 	location  *time.Location
 
-	defaultTemplate *template.Template
-	simpleTemplate  *template.Template
-	httpClient      *http.Client
+	defaultTemplate    *template.Template
+	simpleTemplate     *template.Template
+	httpClient         *http.Client
+	excludeFromSummary bool
 }
 
 type Opt func(datasource *CaldavDatasource) error
@@ -125,8 +126,13 @@ func (c *CaldavDatasource) GetData(ctx context.Context) (*internal.Data, error) 
 		return nil, err
 	}
 
+	var summary []string
+	if !c.excludeFromSummary {
+		summary = getSummary(data.Entries, time.Now(), true)
+	}
+
 	return &internal.Data{
-		Summary:                    getSummary(data.Entries),
+		Summary:                    summary,
 		RenderedDefaultTemplate:    regularTemplateData.Bytes(),
 		RenderedSimplifiedTemplate: simpleTemplateData.Bytes(),
 	}, nil

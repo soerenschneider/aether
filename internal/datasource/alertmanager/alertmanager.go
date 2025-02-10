@@ -5,6 +5,7 @@ import (
 	"context"
 	"html/template"
 	"sort"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/prometheus/alertmanager/api/v2/client"
@@ -28,9 +29,10 @@ type AlertmanagerDatasource struct {
 	basePath string
 	scheme   string
 
-	defaultTemplate *template.Template
-	simpleTemplate  *template.Template
-	limit           int
+	defaultTemplate    *template.Template
+	simpleTemplate     *template.Template
+	limit              int
+	excludeFromSummary bool
 }
 
 type Opt func(datasource *AlertmanagerDatasource) error
@@ -111,8 +113,13 @@ func (a *AlertmanagerDatasource) GetData(ctx context.Context) (*internal.Data, e
 		}
 	}
 
+	var summary []string
+	if !a.excludeFromSummary {
+		summary = getSummary(alerts, time.Now(), true)
+	}
+
 	ret := &internal.Data{
-		Summary:                    nil,
+		Summary:                    summary,
 		RenderedDefaultTemplate:    renderedDefaultTemplate.Bytes(),
 		RenderedSimplifiedTemplate: renderedSimpleTemplate.Bytes(),
 	}
