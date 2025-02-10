@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"regexp"
 	"sync"
 	"time"
 
@@ -21,6 +22,8 @@ import (
 	"github.com/tdewolff/minify/v2"
 	"github.com/tdewolff/minify/v2/css"
 	"github.com/tdewolff/minify/v2/html"
+	"github.com/tdewolff/minify/v2/js"
+	"github.com/tdewolff/minify/v2/svg"
 	"jaytaylor.com/html2text"
 )
 
@@ -59,6 +62,8 @@ func NewApp(deps deps, templateData templates.TemplateData, conf *config.Config)
 		minifier = minify.New()
 		minifier.AddFunc("text/html", html.Minify)
 		minifier.AddFunc("text/css", css.Minify)
+		minifier.AddFunc("image/svg+xml", svg.Minify)
+		minifier.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
 	}
 
 	aetherTempl, err := template.New("aether").Parse(string(templateData.DefaultTemplate))
@@ -197,10 +202,6 @@ func (a *App) stitchPieces(pieces [][]byte) ([]byte, error) {
 		_, _ = htmlData.Write(pieces[i])
 	}
 
-	if a.minifier != nil {
-		return a.minifier.Bytes("text/html", htmlData.Bytes())
-	}
-
 	return htmlData.Bytes(), nil
 }
 
@@ -242,9 +243,18 @@ func (a *App) getRenderedData(ctx context.Context) (*internal.Data, error) {
 	}
 
 	return &internal.Data{
-		RenderedDefaultTemplate:    regularHtmlDoc.Bytes(),
-		RenderedSimplifiedTemplate: simpleHtmlDoc.Bytes(),
+		RenderedDefaultTemplate:    a.Minify(regularHtmlDoc.Bytes()),
+		RenderedSimplifiedTemplate: a.Minify(simpleHtmlDoc.Bytes()),
 	}, nil
+}
+
+func (a *App) Minify(input []byte) []byte {
+	if a.minifier == nil {
+		return input
+	}
+
+	res, _ := a.minifier.Bytes("text/html", input)
+	return res
 }
 
 func (a *App) scheduleEmail(conf config.Config) error {
