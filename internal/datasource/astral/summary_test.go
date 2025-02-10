@@ -8,9 +8,8 @@ import (
 
 func Test_getSummary(t *testing.T) {
 	type args struct {
-		data                  AstralData
-		now                   time.Time
-		addSummaryForNoEvents bool
+		data AstralData
+		now  time.Time
 	}
 	tests := []struct {
 		name string
