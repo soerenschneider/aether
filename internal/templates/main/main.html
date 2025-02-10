@@ -6,7 +6,7 @@
     <meta http-equiv="refresh" content="60">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📌</text></svg>">
     <style>
-        /* General Styling */
+
         body {
             font-family: Arial, sans-serif;
             background-color: #f8f9fa;
@@ -15,7 +15,7 @@
             padding: 20px;
         }
 
-        /* Collapsible Button */
+
         .collapsible {
             background-color: #555;
             color: white;
@@ -34,14 +34,14 @@
             transform: scale(1.02);
         }
 
-        /* Headings */
+
         h2 {
             margin: 0 0 10px 0;
             font-size: 1.5em;
             color: #333;
         }
 
-        /* Table Styles */
+
         table {
             width: 100%;
             margin: 0 0 20px 0;
@@ -59,16 +59,23 @@
         }
 
         td[rowspan] {
-            border-top: 2px solid #555;   /* Darker border on top */
-            border-bottom: 2px solid #555; /* Darker border on bottom */
+            border-top: 1px solid #919191;
+            border-right: 1px solid #919191;
             font-weight: bold;
             text-align: center;
-            background-color: #e0e0e0 !important; /* Light gray for category cells */
         }
 
-        /* If the first row of a category is even, apply the alternate row color */
-        tr:nth-child(even) td[rowspan] {
-            background-color: #d9d9d9 !important; /* Slightly darker gray */
+
+        td[rowspan]:last-of-type {
+            border-bottom: none;
+        }
+
+        td .odd {
+            background-color: #f2f2f2; !important;
+        }
+
+        td .even {
+            background-color: #f8f9fa; !important;
         }
 
         th {
@@ -87,22 +94,22 @@
             transition: background-color 0.3s ease;
         }
 
-        /* Color Coding */
-        .red { background-color: #ff6b6b; color: white; }
-        .green { background-color: #4caf50; color: white; }
-        .yellow { background-color: #ffeb3b; color: black; }
-        .orange { background-color: #ff9800; color: white; }
-        .blue { background-color: #2196f3; color: white; }
-        .lightblue { background-color: #03a9f4; color: white; }
 
-        /* Special Row Styling */
+        .red { background-color: #ffb3b3; color: #5a1e1e; }  /* Soft pinkish red */
+        .green { background-color: #a8d5ba; color: #2e5833; }  /* Muted pastel green */
+        .yellow { background-color: #fff7a3; color: #5a5a00; }  /* Soft warm yellow */
+        .orange { background-color: #ffcc99; color: #704214; }  /* Light pastel orange */
+        .blue { background-color: #a6c8ff; color: #1b3a5d; }  /* Soft baby blue */
+        .lightblue { background-color: #b3e5fc; color: #225577; }  /* Light sky blue */
+
+
         .today-row {
-            background-color: #e3f2fd; /* Light blue */
+            background-color: #e3f2fd;
             font-weight: bold;
         }
 
         .tomorrow-row {
-            background-color: #f0f0f0; /* Light gray */
+            background-color: #f0f0f0;
         }
 
         .day-separator {
@@ -112,7 +119,7 @@
             padding: 10px;
         }
 
-        /* Day Header */
+
         .day-header {
             padding: 12px;
             font-size: 1.2em;
@@ -122,14 +129,14 @@
             text-align: center;
         }
 
-        /* Location Styling */
+
         .location {
             font-size: 0.9em;
             color: #666;
             font-style: italic;
         }
 
-        /* Responsive Design */
+
         @media screen and (max-width: 1080px) {
             body {
                 font-size: 3vw;
@@ -152,7 +159,6 @@
                 font-size: 3vw;
             }
         }
-
     </style>
 </head>
 <body>

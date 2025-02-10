@@ -7,16 +7,22 @@
     </tr>
     </thead>
     <tbody>
-    {{ range $_, $category := . }}
+    {{ range $ind, $category := . }}
+    {{ if gt (len .Data) 0 }}
     {{ $rowspan := len $category.Data }}
     {{ range $index, $event := $category.Data }}
     <tr>
         {{ if eq $index 0 }}
-        <td rowspan="{{ $rowspan }}"><a href="#{{ nameToId $category.Name }}">{{ $category.Name }}</a></td>
+        <td class="{{ if isEven $ind }}even{{ else }}odd{{end}}" rowspan="{{ $rowspan }}"><a href="#{{ nameToId $category.Name }}">{{ $category.Name }}</a></td>
+        {{ else }}
+            <td class="{{ if isEven $ind }}even{{ else }}odd{{end}}" style="display: none"></td>
         {{ end }}
         <td>{{ $event }}</td>
     </tr>
     {{ end }}
     {{ end }}
+    {{ end }}
     </tbody>
 </table>
+
+
