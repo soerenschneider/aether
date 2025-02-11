@@ -73,6 +73,9 @@ func NewApp(deps deps, templateData templates.TemplateData, conf *config.Config)
 
 	summaryTempl, err := template.New("summary").Funcs(template.FuncMap{
 		"nameToId": pkg.NameToId,
+		"add": func(i, j int) int {
+			return i + j
+		},
 		"isEven": func(i int) bool {
 			return i%2 == 0
 		},
