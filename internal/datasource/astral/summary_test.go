@@ -17,7 +17,7 @@ func Test_getSummary(t *testing.T) {
 		want []string
 	}{
 		{
-			name: "",
+			name: "happy case",
 			args: args{
 				data: AstralData{
 					Sunrise:           time.Date(2025, 2, 10, 6, 30, 0, 0, time.UTC),
@@ -29,7 +29,10 @@ func Test_getSummary(t *testing.T) {
 				},
 				now: time.Date(2025, 2, 10, 12, 15, 0, 0, time.UTC),
 			},
-			want: nil,
+			want: []string{
+				"☀️Sun: 06:30 - 18:15",
+				"🌇 Golden Hour ⬇️️ 17:00 - 17:30, 🌌 Blue Hour ⬇️ 17:50 - 18:10",
+			},
 		},
 	}
 	for _, tt := range tests {
