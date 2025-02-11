@@ -8,7 +8,7 @@
 
     {{ $prevCategory := "" }}
     {{ range .Entries }}
-    {{ $category := "" }}
+    {{ $category := "Later" }}
 
     {{ if lt .Start.Unix $.ThisWeekEnd.Unix }}
     {{ $category = "This Week" }}
