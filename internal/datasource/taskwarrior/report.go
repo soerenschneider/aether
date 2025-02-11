@@ -5,13 +5,13 @@ import (
 	"time"
 )
 
-func GenerateReport(tasks []Task, now time.Time, addSummaryForNoEvents bool) []string {
+func GenerateReport(tasks []Task, now time.Time, addSummaryForNoEvents bool, n int) []string {
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 
 	// Track affected tasks
 	var overdueTasks []Task
 	var dueTodayTasks []Task
-	var dueIn7DaysTasks []Task
+	var dueInNDaysTasks []Task
 
 	// Loop through tasks and categorize them
 	for _, task := range tasks {
@@ -27,17 +27,17 @@ func GenerateReport(tasks []Task, now time.Time, addSummaryForNoEvents bool) []s
 			overdueTasks = append(overdueTasks, task)
 		} else if dueDate.Equal(today) {
 			dueTodayTasks = append(dueTodayTasks, task)
-		} else if dueDate.After(today) && dueDate.Before(today.Add(7*24*time.Hour)) {
-			dueIn7DaysTasks = append(dueIn7DaysTasks, task)
+		} else if n > 0 && dueDate.After(today) && dueDate.Before(today.Add(time.Duration(n)*24*time.Hour)) {
+			dueInNDaysTasks = append(dueInNDaysTasks, task)
 		}
 	}
 
 	var report []string
 	if len(overdueTasks) > 0 {
 		if len(overdueTasks) == 1 {
-			report = append(report, fmt.Sprintf("📋 1 Overdue task: %q", overdueTasks[0].Description))
+			report = append(report, fmt.Sprintf("❗📋 1 Overdue task: %q", overdueTasks[0].Description))
 		} else {
-			report = append(report, fmt.Sprintf("📋 %d tasks overdue", len(overdueTasks)))
+			report = append(report, fmt.Sprintf("❗📋 %d tasks overdue", len(overdueTasks)))
 		}
 	}
 
@@ -49,11 +49,11 @@ func GenerateReport(tasks []Task, now time.Time, addSummaryForNoEvents bool) []s
 		}
 	}
 
-	if len(dueIn7DaysTasks) > 0 {
-		if len(dueIn7DaysTasks) == 1 {
-			report = append(report, fmt.Sprintf("📋 1 Task due within the next 7 days: %q", dueIn7DaysTasks[0].Description))
+	if len(dueInNDaysTasks) > 0 {
+		if len(dueInNDaysTasks) == 1 {
+			report = append(report, fmt.Sprintf("📋 1 Task due within the next %d days: %q", n, dueInNDaysTasks[0].Description))
 		} else {
-			report = append(report, fmt.Sprintf("📋 %d tasks due within the next 7 days", len(dueIn7DaysTasks)))
+			report = append(report, fmt.Sprintf("📋 %d tasks due within the next %d days", len(dueInNDaysTasks), n))
 		}
 	}
 

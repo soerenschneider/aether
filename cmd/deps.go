@@ -201,6 +201,10 @@ func buildTaskwarrior(conf *config.TaskwarriorConfig) (*taskwarrior.Datasource, 
 		opts = append(opts, taskwarrior.WithTemplateFile(conf.TemplateFile))
 	}
 
+	if conf.SummaryDays > 0 {
+		opts = append(opts, taskwarrior.WithSummaryDays(conf.SummaryDays))
+	}
+
 	if conf.Limit > 0 {
 		opts = append(opts, taskwarrior.WithLimit(conf.Limit))
 

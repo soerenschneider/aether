@@ -17,6 +17,17 @@ func WithLimit(limit int) Opt {
 	}
 }
 
+func WithSummaryDays(days int) Opt {
+	return func(datasource *Datasource) error {
+		if days < 1 {
+			return errors.New("days can not be < 1")
+		}
+
+		datasource.summaryDays = days
+		return nil
+	}
+}
+
 func WithTemplateFile(file string) Opt {
 	return func(ds *Datasource) error {
 		data, err := os.ReadFile(file)

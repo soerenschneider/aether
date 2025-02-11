@@ -12,9 +12,11 @@ type TaskwarriorConfig struct {
 
 	TemplateFile string `yaml:"template_file" validate:"omitempty,filepath"`
 
-	Cached             bool          `yaml:"cached"`
-	CacheExpiry        time.Duration `yaml:"cache_expiry"`
-	ExcludeFromSummary bool          `yaml:"exclude_from_summary"`
+	Cached      bool          `yaml:"cached"`
+	CacheExpiry time.Duration `yaml:"cache_expiry"`
+
+	SummaryDays        int  `yaml:"summary_days" validate:"omitempty,gte=1,lte=14"`
+	ExcludeFromSummary bool `yaml:"exclude_from_summary"`
 }
 
 func (ds *TaskwarriorConfig) UnmarshalYAML(node *yaml.Node) error {

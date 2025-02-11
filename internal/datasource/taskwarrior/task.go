@@ -16,7 +16,8 @@ import (
 )
 
 const (
-	defaultLimit = 10
+	defaultLimit                  = 10
+	defaultSummaryLookForwardDays = 3
 )
 
 type Client interface {
@@ -26,11 +27,13 @@ type Client interface {
 type Opt func(datasource *Datasource) error
 
 type Datasource struct {
-	limit              int
-	defaultTemplate    *template.Template
-	simpleTemplate     *template.Template
-	taskRcFile         string
-	client             Client
+	limit           int
+	defaultTemplate *template.Template
+	simpleTemplate  *template.Template
+	taskRcFile      string
+	client          Client
+
+	summaryDays        int
 	excludeFromSummary bool
 }
 
@@ -44,9 +47,10 @@ func New(client Client, templateData templates.TemplateData, opts ...Opt) (*Data
 	}
 
 	tw := &Datasource{
-		client:     client,
-		limit:      defaultLimit,
-		taskRcFile: defaultTaskRcFile,
+		client:      client,
+		limit:       defaultLimit,
+		taskRcFile:  defaultTaskRcFile,
+		summaryDays: defaultSummaryLookForwardDays,
 	}
 
 	var errs error
@@ -110,7 +114,7 @@ func (t *Datasource) GetData(ctx context.Context) (*internal.Data, error) {
 
 	var summary []string
 	if !t.excludeFromSummary {
-		summary = GenerateReport(tasks, time.Now(), true)
+		summary = GenerateReport(tasks, time.Now(), true, defaultSummaryLookForwardDays)
 	}
 
 	return &internal.Data{
