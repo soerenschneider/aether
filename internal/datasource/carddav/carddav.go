@@ -120,23 +120,6 @@ func (c *CarddavDatasource) GetData(ctx context.Context) (*internal.Data, error)
 	}, nil
 }
 
-func getSummary(entries []Card, now time.Time, addSummaryForNoEvents bool) []string {
-	var ret []string
-	for _, entry := range entries {
-		anniversary := time.Date(now.Year(), entry.Anniversary.Month(), entry.Anniversary.Day(), 12, 0, 0, 0, time.UTC)
-		if pkg.IsToday(anniversary, now) {
-			b := fmt.Sprintf("%s, %s", entry.Name, entry.Type)
-			ret = append(ret, b)
-		}
-	}
-
-	if addSummaryForNoEvents && len(ret) == 0 {
-		ret = append(ret, "✅ No anniversaries or birthdays today")
-	}
-
-	return ret
-}
-
 func sortCards(entries []Card, now time.Time) {
 	sort.Slice(entries, func(i, j int) bool {
 		iMonth := entries[i].Anniversary.Month()
@@ -222,7 +205,7 @@ func (c *CarddavDatasource) getEntries(ctx context.Context) (*CarddavData, error
 	for _, r := range resp {
 		birthday := r.Card.Get(vcard.FieldBirthday)
 		if birthday != nil {
-			card, err := buildCard(r.Card, birthday, "Birthday 🎂", now)
+			card, err := buildCard(r.Card, birthday, "Birthday", "🎂", now)
 			if err != nil {
 				log.Error().Err(err).Msg("could not extract anniversary")
 			} else {
@@ -232,7 +215,7 @@ func (c *CarddavDatasource) getEntries(ctx context.Context) (*CarddavData, error
 
 		anniversary := r.Card.Get(vcard.FieldAnniversary)
 		if anniversary != nil {
-			card, err := buildCard(r.Card, anniversary, "Anniversary 🥂", now)
+			card, err := buildCard(r.Card, anniversary, "Anniversary", "🥂", now)
 			if err != nil {
 				log.Error().Err(err).Msg("could not extract anniversary")
 			} else {
@@ -249,7 +232,7 @@ func (c *CarddavDatasource) getEntries(ctx context.Context) (*CarddavData, error
 	}, nil
 }
 
-func buildCard(orig vcard.Card, date *vcard.Field, anniversaryType string, now time.Time) (Card, error) {
+func buildCard(orig vcard.Card, date *vcard.Field, anniversaryType, anniversaryEmoji string, now time.Time) (Card, error) {
 	ret := Card{}
 
 	if orig == nil || date == nil {
@@ -274,6 +257,7 @@ func buildCard(orig vcard.Card, date *vcard.Field, anniversaryType string, now t
 
 	ret.DateFormatted = getFormattedAnniversaryDate(ret.Anniversary, now)
 	ret.Type = anniversaryType
+	ret.TypeEmoji = anniversaryEmoji
 	ret.Years = now.Year() - ret.Anniversary.Year()
 	return ret, nil
 }

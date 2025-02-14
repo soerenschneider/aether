@@ -21,6 +21,7 @@ type Card struct {
 	Upcoming      time.Time
 	DateFormatted string
 	Type          string
+	TypeEmoji     string
 	Years         int
 }
 
