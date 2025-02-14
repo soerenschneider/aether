@@ -96,10 +96,11 @@ func GenerateWeatherReport(entries []*WeatherEntry, currentTime time.Time) []str
 		// precipitation, we add it to the report.
 		if slotData.precip >= rainLight && !ContainsRain(report) {
 			amount := formatRainAmount(slotData.precip)
-			report += fmt.Sprintf(", and %s %s", convertPrecipitation(slotData.precip), amount)
+			report += fmt.Sprintf(", %s %s", convertPrecipitation(slotData.precip), amount)
 		}
 		if slotData.wind >= WindCalm {
-			report += fmt.Sprintf(", with %s (%.0f m/s)", WindSpeedDescription(slotData.wind), slotData.wind)
+			op := " and"
+			report += fmt.Sprintf("%s %s (%.0f m/s)", op, WindSpeedDescription(slotData.wind), slotData.wind)
 		}
 		report += "."
 
