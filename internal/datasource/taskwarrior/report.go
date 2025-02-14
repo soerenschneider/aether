@@ -58,7 +58,7 @@ func GenerateReport(tasks []Task, now time.Time, addSummaryForNoEvents bool, n i
 	}
 
 	if addSummaryForNoEvents && len(report) == 0 {
-		report = append(report, "✅ No tasks due next 7d")
+		report = append(report, fmt.Sprintf("✅ No tasks due next %d days", n))
 	}
 
 	return report
