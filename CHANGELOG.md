@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.0](https://github.com/soerenschneider/aether/compare/v1.0.0...v1.1.0) (2025-02-11)
+
+
+### Features
+
+* configure lookahead days for taskwarrior summary ([9c75cf4](https://github.com/soerenschneider/aether/commit/9c75cf44eea7e56af2b39e953878c20292f6a2bb))
+
+
+### Bug Fixes
+
+* fix calculating even/odd classes ([3d2b828](https://github.com/soerenschneider/aether/commit/3d2b82833fc1e4266e13c62a41af2d1a96b27936))
+* fix css summary table rendering ([42d2f9c](https://github.com/soerenschneider/aether/commit/42d2f9cd24535b827f7cce8cc00fc5f2a0299735))
+* fix font size when displaying specific emojis ([daca2d3](https://github.com/soerenschneider/aether/commit/daca2d33a761910b1a0a5e2fbd4c6289612604a4))
+
 ## 1.0.0 (2025-02-10)
 
 
