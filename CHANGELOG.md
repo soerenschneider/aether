@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/soerenschneider/aether/compare/v1.1.0...v1.1.1) (2025-02-14)
+
+
+### Bug Fixes
+
+* show correct number of days ([88b4e05](https://github.com/soerenschneider/aether/commit/88b4e0514121b0aab0fe6ba1057135c69f57d6e9))
+
 ## [1.1.0](https://github.com/soerenschneider/aether/compare/v1.0.0...v1.1.0) (2025-02-11)
 
 
