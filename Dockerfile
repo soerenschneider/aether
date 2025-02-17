@@ -26,7 +26,7 @@ RUN cmake --build build -j 8
 RUN cmake --install build
 RUN task --version
 
-FROM golang:1.23.6 AS build-aether
+FROM golang:1.24.0 AS build-aether
 
 WORKDIR /src
 COPY ./go.mod ./go.sum ./
