@@ -4,6 +4,7 @@
     <title>aether</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="refresh" content="60">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📌</text></svg>">
     <style>
 
@@ -129,24 +130,27 @@
 
         @media screen and (max-width: 1080px) {
             body {
-                font-size: 1.85rem;
+                font-size: clamp(1rem, 2.5vw, 1.2rem); /* Ensures readability */
+                padding: 5px;
             }
 
             th, td {
-                font-size: 28px;
+                font-size: clamp(0.8rem, 2.3vw, 1.1rem); /* Makes table text readable */
+                padding: 8px; /* Adds spacing to prevent crowding */
             }
 
             .location {
-                font-size: 1.8rem;
+                font-size: clamp(1rem, 2.5vw, 1.2rem);
             }
 
             .time {
                 display: block;
-                font-size: 1.8rem;
+                font-size: clamp(1rem, 2.5vw, 1.2rem);
+                text-align: center; /* Improves alignment on mobile */
             }
 
             .collapsible {
-                font-size: 1.865rem;
+                font-size: clamp(1rem, 2.5vw, 1.2rem);
             }
         }
     </style>
