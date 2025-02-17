@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/soerenschneider/aether/compare/v1.1.0...v1.1.1) (2025-02-17)
+
+
+### Bug Fixes
+
+* improve mobile css for better readability ([14cb27f](https://github.com/soerenschneider/aether/commit/14cb27f831c871c44a48e3761b4f372468471b50))
+* show correct number of days ([88b4e05](https://github.com/soerenschneider/aether/commit/88b4e0514121b0aab0fe6ba1057135c69f57d6e9))
+
 ## [1.1.0](https://github.com/soerenschneider/aether/compare/v1.0.0...v1.1.0) (2025-02-11)
 
 
