@@ -2,7 +2,7 @@ module github.com/soerenschneider/aether
 
 go 1.22.3
 
-toolchain go1.23.4
+toolchain go1.24.1
 
 require (
 	github.com/caarlos0/env/v10 v10.0.0
@@ -13,7 +13,7 @@ require (
 	github.com/go-openapi/strfmt v0.23.0
 	github.com/go-playground/validator/v10 v10.24.0
 	github.com/hashicorp/go-retryablehttp v0.7.7
-	github.com/prometheus/alertmanager v0.28.0
+	github.com/prometheus/alertmanager v0.28.1
 	github.com/prometheus/client_golang v1.21.1
 	github.com/rs/zerolog v1.33.0
 	github.com/sj14/astral v0.2.2
