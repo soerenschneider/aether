@@ -3,28 +3,9 @@ package caldav
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
-	"os"
 	"time"
 )
-
-func WithRegularTemplateFile(file string) Opt {
-	return func(ds *CaldavDatasource) error {
-		data, err := os.ReadFile(file)
-		if err != nil {
-			return err
-		}
-
-		temp, err := template.New("agenda").Parse(string(data))
-		if err != nil {
-			return err
-		}
-
-		ds.defaultTemplate = temp
-		return nil
-	}
-}
 
 func WithLocation(location *time.Location) Opt {
 	return func(ds *CaldavDatasource) error {

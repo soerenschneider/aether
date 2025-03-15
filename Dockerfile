@@ -18,13 +18,15 @@ RUN apk add --no-cache \
 WORKDIR /taskwarrior
 
 # Clone the Taskwarrior repository
-RUN git clone https://github.com/GothenburgBitFactory/taskwarrior.git .
+# renovate: datasource=github-releases depName=GothenburgBitFactory/taskwarrior
+ARG TASKWARRIOR_VERSION=v3.3.0
+RUN git clone https://github.com/GothenburgBitFactory/taskwarrior.git . && \
+    git -C /taskwarrior checkout ${TASKWARRIOR_VERSION}
 
 # Build Taskwarrior using cmake
-RUN cmake -S . -B build -DCMAKE_BUILD_TYPE=Release .
-RUN cmake --build build -j 8
-RUN cmake --install build
-RUN task --version
+RUN cmake -S . -B build -DCMAKE_BUILD_TYPE=Release . && \
+    cmake --build build -j 8 && \
+    cmake --install build
 
 FROM golang:1.23.6 AS build-aether
 
