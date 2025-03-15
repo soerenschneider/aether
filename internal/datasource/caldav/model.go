@@ -84,7 +84,7 @@ func getFormattedDate(start, end time.Time) []string {
 
 			s := start.Format("15:04")
 			e := end.Format("15:04")
-			return []string{"Today", fmt.Sprintf("%s–%s", s, e)}
+			return []string{"Today", fmt.Sprintf("%s – %s", s, e)}
 		}
 
 		if pkg.IsTomorrow(start) {
@@ -94,7 +94,7 @@ func getFormattedDate(start, end time.Time) []string {
 
 			s := start.Format("15:04")
 			e := end.Format("15:04")
-			return []string{"Tomorrow", fmt.Sprintf("%s–%s", s, e)}
+			return []string{"Tomorrow", fmt.Sprintf("%s – %s", s, e)}
 		}
 
 		if isWholeDay {
@@ -105,7 +105,7 @@ func getFormattedDate(start, end time.Time) []string {
 		w := start.Format("02.01.")
 		s := start.Format("15:04")
 		e := end.Format("15:04")
-		return []string{fmt.Sprintf("%s, %s", start.Weekday().String()[:3], w), fmt.Sprintf("%s–%s", s, e)}
+		return []string{fmt.Sprintf("%s, %s", start.Weekday().String()[:3], w), fmt.Sprintf("%s – %s", s, e)}
 	}
 
 	dur := end.Sub(start)

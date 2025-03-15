@@ -111,10 +111,10 @@ func TestGenerateWeatherReport(t *testing.T) {
 	reports := GenerateWeatherReport(entries, fixedTime)
 
 	expectedReports := []string{
-		"☀️ Morning will have Clear and Sunny with an avg. temp of 22°C, with calm wind 🐢 (2 m/s).",
-		"☁️ ⛅ Afternoon will have Cloudy and Partly Cloudy with an avg. temp of 25°C, and light rain 🌦️ (2 mm), with light breeze 🌿 (5 m/s).",
-		"⛈️ 🌧️ Evening will have Rain 🌧️ (5 mm) and Stormy with an avg. temp of 20°C, with breeze 🍃 (6 m/s).",
-		"☁️ 🌙 Night will have Clear and Cloudy with an avg. temp of 16°C, with light breeze 🌿 (3 m/s).",
+		"☀️ Morning will have Clear and Sunny with an avg. temp of 22°C and calm wind 🐢 (2 m/s).",
+		"☁️ ⛅ Afternoon will have Cloudy and Partly Cloudy with an avg. temp of 25°C, light rain 🌦️ (2 mm) and light breeze 🌿 (5 m/s).",
+		"⛈️ 🌧️ Evening will have Rain 🌧️ (5 mm) and Stormy with an avg. temp of 20°C and breeze 🍃 (6 m/s).",
+		"☁️ 🌙 Night will have Clear and Cloudy with an avg. temp of 16°C and light breeze 🌿 (3 m/s).",
 	}
 
 	if len(reports) != len(expectedReports) {

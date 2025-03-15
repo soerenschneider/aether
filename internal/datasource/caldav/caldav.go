@@ -3,10 +3,9 @@ package caldav
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"html/template"
-	"net/http"
-	"os"
 	"sort"
 	"strings"
 	"time"
@@ -14,10 +13,6 @@ import (
 	"github.com/soerenschneider/aether/internal"
 	"github.com/soerenschneider/aether/internal/templates"
 	"github.com/soerenschneider/aether/pkg"
-
-	"github.com/emersion/go-webdav"
-	"github.com/emersion/go-webdav/caldav"
-	"go.uber.org/multierr"
 )
 
 const (
@@ -26,59 +21,41 @@ const (
 )
 
 type CaldavDatasource struct {
-	endpoint string
-	username string
-	password string
+	client CaldavClient
 
 	maxDays    int
 	maxEntries int
 
-	davClient *caldav.Client
-	location  *time.Location
+	location *time.Location
 
 	defaultTemplate    *template.Template
 	simpleTemplate     *template.Template
-	httpClient         *http.Client
 	excludeFromSummary bool
 }
 
-type Opt func(datasource *CaldavDatasource) error
+type CaldavClient interface {
+	FetchData(ctx context.Context) ([]Entry, error)
+}
 
-func New(endpoint string, templateData templates.TemplateData, opts ...Opt) (*CaldavDatasource, error) {
+type DatasourceOpt func(datasource *CaldavDatasource) error
+
+func New(client CaldavClient, templateData templates.TemplateData, opts ...DatasourceOpt) (*CaldavDatasource, error) {
 	if err := templateData.Validate(); err != nil {
 		return nil, fmt.Errorf("invalid template data: %w", err)
 	}
 
+	if client == nil {
+		return nil, errors.New("nil client passed")
+	}
+
 	ds := &CaldavDatasource{
-		endpoint:   endpoint,
+		client:     client,
 		maxDays:    defaultMaxDays,
 		maxEntries: defaultMaxEntries,
-		httpClient: http.DefaultClient,
 		location:   time.Now().Location(),
 	}
 
-	var errs error
-	for _, opt := range opts {
-		if err := opt(ds); err != nil {
-			errs = multierr.Append(errs, err)
-		}
-	}
-
-	var client *caldav.Client
 	var err error
-	if len(ds.username) > 0 && len(ds.password) > 0 {
-		client, err = caldav.NewClient(webdav.HTTPClientWithBasicAuth(ds.httpClient, ds.username, ds.password), endpoint)
-	} else {
-		client, err = caldav.NewClient(ds.httpClient, ds.endpoint)
-	}
-
-	if err != nil {
-		errs = multierr.Append(errs, fmt.Errorf("creating client: %w", err))
-		return nil, errs
-	}
-
-	ds.davClient = client
-
 	ds.defaultTemplate, err = template.New("agenda-regular").Funcs(template.FuncMap{
 		"fixLocation": fixLocation,
 	}).Parse(string(templateData.DefaultTemplate))
@@ -95,7 +72,7 @@ func New(endpoint string, templateData templates.TemplateData, opts ...Opt) (*Ca
 		}
 	}
 
-	return ds, errs
+	return ds, nil
 }
 
 func (c *CaldavDatasource) Name() string {
@@ -103,9 +80,21 @@ func (c *CaldavDatasource) Name() string {
 }
 
 func (c *CaldavDatasource) GetData(ctx context.Context) (*internal.Data, error) {
-	data, err := c.getEntries(ctx)
+	entries, err := c.client.FetchData(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	now := time.Now()
+	daysUntilSunday := 7 - int(now.Weekday()) // Days until Sunday
+	data := CaldavData{
+		Entries:         entries,
+		From:            time.Now().In(c.location),
+		To:              time.Now().In(c.location).AddDate(0, 0, c.maxDays),
+		Now:             now,
+		ThisWeekEnd:     now.AddDate(0, 0, daysUntilSunday),
+		NextWeekEnd:     now.AddDate(0, 0, daysUntilSunday).AddDate(0, 0, 7),
+		NextNextWeekEnd: now.AddDate(0, 0, daysUntilSunday).AddDate(0, 0, 14),
 	}
 
 	data.Entries = c.filter(data.Entries)
@@ -118,12 +107,12 @@ func (c *CaldavDatasource) GetData(ctx context.Context) (*internal.Data, error) 
 
 	var regularTemplateData bytes.Buffer
 	if err := c.defaultTemplate.Execute(&regularTemplateData, data); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not render 'regular' template: %w", internal.ErrTemplate)
 	}
 
 	var simpleTemplateData bytes.Buffer
 	if err := c.simpleTemplate.Execute(&simpleTemplateData, data); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not render 'simple' template: %w", internal.ErrTemplate)
 	}
 
 	var summary []string
@@ -174,64 +163,4 @@ func fixLocation(input string) string {
 	}
 
 	return input
-}
-
-func (c *CaldavDatasource) getEntries(ctx context.Context) (*CaldavData, error) {
-	homeSet, err := c.davClient.FindCalendarHomeSet(ctx, c.username)
-	if err != nil {
-		return nil, fmt.Errorf("finding home set: %w", err)
-	}
-
-	calendars, err := c.davClient.FindCalendars(ctx, homeSet)
-	if err != nil {
-		return nil, fmt.Errorf("finding calendars: %w", err)
-	}
-	if len(calendars) < 1 {
-		return nil, fmt.Errorf("no calendars found")
-	}
-
-	now := time.Now()
-	//today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
-	resp, err := c.davClient.QueryCalendar(ctx, calendars[0].Path, &caldav.CalendarQuery{
-		CompFilter: caldav.CompFilter{
-			Name: "VCALENDAR",
-			//Start: today,
-			//End:   today.AddDate(0, 0, c.maxDays),
-		},
-	})
-	if err != nil {
-		return nil, fmt.Errorf("querying first calendar %q: %w", calendars[0].Path, err)
-	}
-
-	var entries []Entry
-	for _, icsEvent := range resp {
-		events := icsEvent.Data.Events()
-
-		skipNames := strings.Split(os.Getenv("IGNORE"), ",")
-		for _, e := range events {
-			for _, igName := range skipNames {
-				if evName := e.Props.Get("SUMMARY"); evName != nil &&
-					evName.Value == igName {
-					continue
-				}
-			}
-
-			//redacted := redactComponent(e.Component)
-			entry := toEntry(e.Component)
-			entries = append(entries, entry)
-		}
-	}
-
-	daysUntilSunday := 7 - int(now.Weekday()) // Days until Sunday
-	data := &CaldavData{
-		Entries:         entries,
-		From:            time.Now().In(c.location),
-		To:              time.Now().In(c.location).AddDate(0, 0, c.maxDays),
-		Now:             now,
-		ThisWeekEnd:     now.AddDate(0, 0, daysUntilSunday),
-		NextWeekEnd:     now.AddDate(0, 0, daysUntilSunday).AddDate(0, 0, 7),
-		NextNextWeekEnd: now.AddDate(0, 0, daysUntilSunday).AddDate(0, 0, 14),
-	}
-
-	return data, nil
 }

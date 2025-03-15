@@ -259,7 +259,8 @@ func buildCardDav(conf *config.CardDavConfig) (*carddav.CarddavDatasource, error
 }
 
 func buildCalDav(conf *config.CalDavConfig) (*caldav.CaldavDatasource, error) {
-	opts := []caldav.Opt{
+	var caldavOpts []caldav.DatasourceOpt
+	clientOpts := []caldav.ClientOpt{
 		caldav.WithHttpClient(httpClient),
 	}
 
@@ -272,15 +273,15 @@ func buildCalDav(conf *config.CalDavConfig) (*caldav.CaldavDatasource, error) {
 			}
 			password = string(content)
 		}
-		opts = append(opts, caldav.WithBasicAuth(conf.Username, password))
+		clientOpts = append(clientOpts, caldav.WithBasicAuth(conf.Username, password))
 	}
 
-	if len(conf.TemplateFile) > 0 {
-		opts = append(opts, caldav.WithRegularTemplateFile(conf.TemplateFile))
+	client, err := caldav.NewClient(conf.Endpoint, clientOpts...)
+	if err != nil {
+		return nil, fmt.Errorf("could not build caldav client: %w", err)
 	}
 
 	templateData := templates.TemplateData{}
-	var err error
 	templateData.DefaultTemplate, err = templates.GetTemplate("calendar/default.html")
 	if err != nil {
 		return nil, err
@@ -289,7 +290,7 @@ func buildCalDav(conf *config.CalDavConfig) (*caldav.CaldavDatasource, error) {
 	if err != nil {
 		return nil, err
 	}
-	return caldav.New(conf.Endpoint, templateData, opts...)
+	return caldav.New(client, templateData, caldavOpts...)
 }
 
 func init() {

@@ -169,6 +169,7 @@ func (a *App) fetchData(ctx context.Context) (dataPieces, error) {
 	start := time.Now()
 	for index, ds := range a.deps.datasources {
 		f := func(ctx context.Context) error {
+			start := time.Now()
 			data, err := ds.GetData(ctx)
 			if err != nil {
 				return err
