@@ -15,7 +15,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/prometheus/alertmanager v0.28.1
 	github.com/prometheus/client_golang v1.21.1
-	github.com/rs/zerolog v1.33.0
+	github.com/rs/zerolog v1.34.0
 	github.com/sj14/astral v0.2.2
 	github.com/soerenschneider/go-taskwarrior v0.0.0-20250208074001-b926fd3a88e7
 	github.com/sourcegraph/conc v0.3.0
