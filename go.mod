@@ -14,7 +14,7 @@ require (
 	github.com/go-playground/validator/v10 v10.25.0
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/prometheus/alertmanager v0.28.1
-	github.com/prometheus/client_golang v1.21.1
+	github.com/prometheus/client_golang v1.22.0
 	github.com/rs/zerolog v1.33.0
 	github.com/sj14/astral v0.2.2
 	github.com/soerenschneider/go-taskwarrior v0.0.0-20250208074001-b926fd3a88e7
