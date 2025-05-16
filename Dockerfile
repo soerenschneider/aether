@@ -1,4 +1,4 @@
-FROM rust:1.84.1-alpine3.21 AS build-taskwarrior
+FROM rust:1.87.0-alpine3.21 AS build-taskwarrior
 
 # Install dependencies needed to build Taskwarrior
 RUN apk add --no-cache \
