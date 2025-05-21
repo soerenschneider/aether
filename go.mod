@@ -19,7 +19,7 @@ require (
 	github.com/sj14/astral v0.2.2
 	github.com/soerenschneider/go-taskwarrior v0.0.0-20250208074001-b926fd3a88e7
 	github.com/sourcegraph/conc v0.3.0
-	github.com/tdewolff/minify/v2 v2.21.3
+	github.com/tdewolff/minify/v2 v2.23.8
 	go.uber.org/multierr v1.11.0
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
