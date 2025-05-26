@@ -16,6 +16,7 @@ import (
 	"github.com/soerenschneider/aether/internal/datasource/cached"
 	"github.com/soerenschneider/aether/internal/datasource/caldav"
 	"github.com/soerenschneider/aether/internal/datasource/carddav"
+	"github.com/soerenschneider/aether/internal/datasource/logs"
 	"github.com/soerenschneider/aether/internal/datasource/static"
 	"github.com/soerenschneider/aether/internal/datasource/taskwarrior"
 	"github.com/soerenschneider/aether/internal/datasource/weather"
@@ -77,6 +78,8 @@ func buildDatasources(conf config.Config, _ *sync.WaitGroup) ([]Datasource, erro
 			ds, err = buildCalDav(dsConfig.Config.(*config.CalDavConfig))
 		case config.CardDav:
 			ds, err = buildCardDav(dsConfig.Config.(*config.CardDavConfig))
+		case config.Logs:
+			ds, err = buildLogs(dsConfig.Config.(*config.LogsConfig))
 		//case config.Stocks:
 		//	ds, err = buildStocks(dsConfig.Config.(*config.StocksConfig))
 		case config.Taskwarrior:
@@ -291,6 +294,36 @@ func buildCalDav(conf *config.CalDavConfig) (*caldav.CaldavDatasource, error) {
 		return nil, err
 	}
 	return caldav.New(client, templateData, caldavOpts...)
+}
+
+func buildLogs(conf *config.LogsConfig) (*logs.VictorialogsClient, error) {
+	opts := []logs.Opt{
+		logs.WithHttpClient(httpClient),
+	}
+
+	if len(conf.TemplateFile) > 0 {
+		opts = append(opts, logs.WithTemplateFile(conf.TemplateFile))
+	}
+
+	if conf.Query != "" {
+		opts = append(opts, logs.WithQuery(conf.Query))
+	}
+
+	if conf.Limit != 0 {
+		opts = append(opts, logs.WithLimit(conf.Limit))
+	}
+
+	templateData := templates.TemplateData{}
+	var err error
+	templateData.DefaultTemplate, err = templates.GetTemplate("logs/default.html")
+	if err != nil {
+		return nil, err
+	}
+	templateData.SimpleTemplate, err = templates.GetTemplate("logs/simple.html")
+	if err != nil {
+		return nil, err
+	}
+	return logs.New(conf.Endpoint, templateData, opts...)
 }
 
 func init() {

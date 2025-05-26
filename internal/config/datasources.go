@@ -13,6 +13,7 @@ const (
 	Astral       = "astral"
 	CalDav       = "caldav"
 	CardDav      = "carddav"
+	Logs         = "logs"
 	Taskwarrior  = "taskwarrior"
 	Stocks       = "stocks"
 	Weather      = "weather"
@@ -42,6 +43,8 @@ func (ds *DatasourceConfigContainer) UnmarshalYAML(node *yaml.Node) error {
 		conf = &CalDavConfig{}
 	case CardDav:
 		conf = &CardDavConfig{}
+	case Logs:
+		conf = &LogsConfig{}
 	case Stocks:
 		conf = &StocksConfig{}
 	case Taskwarrior:
