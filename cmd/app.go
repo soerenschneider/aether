@@ -193,7 +193,12 @@ func (a *App) fetchData(ctx context.Context) (dataPieces, error) {
 
 	log.Debug().Msgf("Updated %d datasources in %v", len(a.deps.datasources), time.Since(start))
 	if err := p.Wait(); err != nil {
-		return dataPieces{}, err
+		log.Error().Err(err).Msg("could not render all templates")
+		return dataPieces{
+			RegularHtmlPieces: regularHtmlPieces,
+			SimpleHtmlPieces:  simplifiedHtmlPieces,
+			SummaryPieces:     summaryPieces,
+		}, nil
 	}
 
 	return dataPieces{
