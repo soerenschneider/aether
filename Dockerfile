@@ -28,7 +28,7 @@ RUN cmake -S . -B build -DCMAKE_BUILD_TYPE=Release . && \
     cmake --build build -j 8 && \
     cmake --install build
 
-FROM golang:1.23.6 AS build-aether
+FROM golang:1.24.1 AS build-aether
 
 WORKDIR /src
 COPY ./go.mod ./go.sum ./
@@ -39,7 +39,7 @@ ENV CGO_ENABLED=0
 RUN go mod download
 RUN make build
 
-FROM alpine:3.21.2 AS final
+FROM alpine:3.21.3 AS final
 
 LABEL maintainer="soerenschneider"
 
