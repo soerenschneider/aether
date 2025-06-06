@@ -28,7 +28,7 @@ RUN cmake -S . -B build -DCMAKE_BUILD_TYPE=Release . && \
     cmake --build build -j 8 && \
     cmake --install build
 
-FROM golang:1.24.1 AS build-aether
+FROM golang:1.24.4 AS build-aether
 
 WORKDIR /src
 COPY ./go.mod ./go.sum ./
