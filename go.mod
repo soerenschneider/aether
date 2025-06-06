@@ -2,7 +2,7 @@ module github.com/soerenschneider/aether
 
 go 1.23.0
 
-toolchain go1.24.1
+toolchain go1.24.4
 
 require (
 	github.com/caarlos0/env/v10 v10.0.0
