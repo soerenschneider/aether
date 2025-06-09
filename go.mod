@@ -6,7 +6,7 @@ toolchain go1.24.1
 
 require (
 	github.com/caarlos0/env/v10 v10.0.0
-	github.com/emersion/go-ical v0.0.0-20240127095438-fc1c9d8fb2b6
+	github.com/emersion/go-ical 439c63cef608
 	github.com/emersion/go-vcard v0.0.0-20230815062825-8fda7d206ec9
 	github.com/emersion/go-webdav v0.6.0
 	github.com/go-co-op/gocron v1.37.0
