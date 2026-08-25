@@ -1,8 +1,6 @@
 module github.com/soerenschneider/aether
 
-go 1.23.0
-
-toolchain go1.24.1
+go 1.26.0
 
 require (
 	github.com/caarlos0/env/v10 v10.0.0
@@ -21,7 +19,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0
 	github.com/tdewolff/minify/v2 v2.21.3
 	go.uber.org/multierr v1.11.0
-	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
+	golang.org/x/exp v0.0.0-20260824195058-e88cd73687aa
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/yaml.v3 v3.0.1
 	jaytaylor.com/html2text v0.0.0-20230321000545-74c2419ad056
@@ -73,7 +71,7 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	golang.org/x/crypto v0.35.0 // indirect
 	golang.org/x/net v0.36.0 // indirect
-	golang.org/x/sync v0.11.0 // indirect
+	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
 	google.golang.org/protobuf v1.36.1 // indirect
