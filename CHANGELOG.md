@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/soerenschneider/aether/compare/v1.2.0...v1.2.1) (2026-10-29)
+
+
+### Miscellaneous Chores
+
+* release 1.2.1 ([7758577](https://github.com/soerenschneider/aether/commit/77585774d35331105c99a5d0f83d5557e3b1f006))
+
 ## [1.2.0](https://github.com/soerenschneider/aether/compare/v1.1.1...v1.2.0) (2026-10-29)
 
 
