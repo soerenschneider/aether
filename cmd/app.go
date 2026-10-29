@@ -40,6 +40,8 @@ type App struct {
 	minifier        *minify.M
 	aetherTemplate  *template.Template
 	summaryTemplate *template.Template
+	// styles of the email, see serve.PrepareEmail
+	emailCSS string
 	// shell for the pages that datasources offer next to the dashboard
 	pageTemplate *template.Template
 	// datasources that offer a page of their own, by datasource name
@@ -121,6 +123,11 @@ func NewApp(deps deps, templateData templates.TemplateData, conf *config.Config)
 		return nil, err
 	}
 
+	emailCSS, err := templates.GetTemplate("main/email.css")
+	if err != nil {
+		return nil, err
+	}
+
 	pages := map[string]internal.PageProvider{}
 	for _, ds := range deps.datasources {
 		if provider := findPageProvider(ds); provider != nil {
@@ -141,6 +148,7 @@ func NewApp(deps deps, templateData templates.TemplateData, conf *config.Config)
 		minifier:        minifier,
 		aetherTemplate:  aetherTempl,
 		summaryTemplate: summaryTempl,
+		emailCSS:        string(emailCSS),
 		pageTemplate:    pageTempl,
 		pages:           pages,
 	}, nil
@@ -486,7 +494,13 @@ func (a *App) sendEmail(ctx context.Context) {
 		TextOnly:            false,
 	})
 
-	if err := a.deps.email.SendReport(ctx, "Aether", string(data.RenderedDefaultTemplate), text); err != nil {
+	html, err := serve.PrepareEmail(data.RenderedDefaultTemplate, a.emailCSS, a.conf.Email.DashboardURL)
+	if err != nil {
+		log.Warn().Err(err).Msg("could not prepare email, sending the dashboard as it is")
+		html = string(data.RenderedDefaultTemplate)
+	}
+
+	if err := a.deps.email.SendReport(ctx, "Aether", html, text); err != nil {
 		log.Error().Err(err).Msg("could not send email")
 		return
 	}

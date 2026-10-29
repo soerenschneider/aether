@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"html"
 	"net/http"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -23,6 +24,7 @@ import (
 	"github.com/soerenschneider/aether/internal"
 	"github.com/soerenschneider/aether/internal/config"
 	"github.com/soerenschneider/aether/internal/datasource/cached"
+	"github.com/soerenschneider/aether/internal/serve"
 	"github.com/soerenschneider/aether/internal/static"
 	"github.com/soerenschneider/aether/internal/templates"
 	"jaytaylor.com/html2text"
@@ -46,6 +48,7 @@ func runDevServer() {
 	mux.Handle("/static/", static.Handler("/static/"))
 	mux.HandleFunc("/text", devTextHandler)
 	mux.HandleFunc("/calendar", devSubPageHandler)
+	mux.HandleFunc("/email", devEmailHandler)
 	mux.HandleFunc("/", devPageHandler)
 
 	log.Info().Msgf("Serving fake data at http://%s, pick a scenario with ?scenario=%s", *addr, strings.Join(scenarioNames(), "|"))
@@ -117,6 +120,39 @@ func devSubPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.NotFound(w, r)
+}
+
+// devEmailHandler shows the dashboard as it is sent by email. With ?inline-only the <style> element that remains after
+// inlining is removed as well, as many email clients do.
+func devEmailHandler(w http.ResponseWriter, r *http.Request) {
+	s, ok := parseScenario(w, r)
+	if !ok {
+		return
+	}
+
+	data, _, err := renderDev(r.Context(), s)
+	if err != nil {
+		writeDevError(w, err)
+		return
+	}
+
+	css, err := templates.GetTemplate("main/email.css")
+	if err != nil {
+		writeDevError(w, err)
+		return
+	}
+
+	email, err := serve.PrepareEmail(data.RenderedDefaultTemplate, string(css), "http://"+r.Host+"/")
+	if err != nil {
+		writeDevError(w, err)
+		return
+	}
+	if _, ok := r.URL.Query()["inline-only"]; ok {
+		email = regexp.MustCompile(`(?s)<style.*?</style>`).ReplaceAllString(email, "")
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
+	_, _ = w.Write([]byte(email))
 }
 
 func devTextHandler(w http.ResponseWriter, r *http.Request) {

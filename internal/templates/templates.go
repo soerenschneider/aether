@@ -10,7 +10,7 @@ import (
 const migrationsDir = "migrations"
 
 var (
-	//go:embed */*.html
+	//go:embed */*.html */*.css
 	migrations embed.FS
 
 	// source the templates are read from, the embedded templates unless UseDir is called

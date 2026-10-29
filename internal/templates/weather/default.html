@@ -31,7 +31,7 @@
                 <td class="d-label">{{ .Label }}</td>
                 <td class="d-icon" title="{{ .Description }}">{{ .Emoji }}</td>
                 <td class="d-min">{{ printf "%.0f" .Min }}°</td>
-                <td><div class="range"><span style="left: {{ .BarLeft }}%; width: {{ .BarWidth }}%"></span></div></td>
+                <td><div class="range"><span style="margin-left: {{ .BarLeft }}%; width: {{ .BarWidth }}%"></span></div></td>
                 <td class="d-max">{{ printf "%.0f" .Max }}°</td>
                 <td class="d-rain">{{ if ge .Rain 0.1 }}{{ printf "%.1f" .Rain }} mm{{ end }}</td>
             </tr>

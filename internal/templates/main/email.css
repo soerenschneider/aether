@@ -1,0 +1,97 @@
+/*
+  Styles for the email, see serve.PrepareEmail. They are inlined into the elements, as many email clients drop
+  <style> elements. Email clients support little CSS: no variables, calc(), clamp(), grid, positioning or gradients.
+*/
+body { margin: 0; padding: 0; background: #f5f6f8; color: #111827; font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.45; }
+a { color: #2563eb; text-decoration: none; }
+.page { max-width: 640px; margin: 0 auto; padding: 16px; }
+
+.top { padding: 8px 0 16px; }
+.top h1 { margin: 0; font-size: 22px; font-weight: 700; line-height: 1.2; }
+.top h1 span { color: #6b7280; font-weight: 400; }
+.status { margin-top: 4px; color: #6b7280; font-size: 13px; }
+
+.notice { margin-bottom: 12px; padding: 10px 14px; border: 1px solid #f5c2c0; border-radius: 10px; background: #fdeaea; color: #a3231f; font-size: 14px; }
+.notice.warn { border-color: #f3d9b0; background: #fdf3e1; color: #8f4a0b; }
+
+/* tiles: three per row, inline-block as email clients don't support grid */
+.now { margin-bottom: 4px; font-size: 0; }
+.tile, .glance-item { display: inline-block; box-sizing: border-box; width: 31%; margin: 0 2% 12px 0; padding: 12px 14px; vertical-align: top; border: 1px solid #e4e7eb; border-radius: 12px; background: #ffffff; color: #111827; font-size: 15px; }
+.tile-label, .glance-label { color: #6b7280; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.tile-value { margin-top: 4px; font-size: 20px; font-weight: 700; line-height: 1.25; }
+.tile-sub { margin-top: 3px; color: #6b7280; font-size: 13px; }
+.tile-outdated { margin-top: 4px; color: #d97706; font-size: 12px; }
+.glance-item ul { margin: 4px 0 0; padding: 0; list-style: none; font-size: 14px; }
+.tone-bad { color: #dc2626; }
+.tone-warn { color: #d97706; }
+.tone-ok { color: #16a34a; }
+.nowrap { white-space: nowrap; }
+
+/* cards */
+.card { margin-bottom: 14px; border: 1px solid #e4e7eb; border-radius: 12px; background: #ffffff; overflow: hidden; }
+.card-head, .card > h2 { padding: 14px 16px 6px; }
+.card h2 { display: inline; margin: 0; font-size: 16px; font-weight: 700; }
+.card h2 span { color: #6b7280; font-weight: 400; }
+.count { margin-left: 6px; color: #6b7280; font-size: 13px; }
+.meta, .head-link { float: right; margin-left: 10px; color: #6b7280; font-size: 12px; }
+.head-link { color: #2563eb; }
+.empty { margin: 0; padding: 4px 16px 14px; color: #6b7280; font-size: 14px; }
+.card-foot { padding: 8px 16px; border-top: 1px solid #e4e7eb; color: #6b7280; font-size: 12px; }
+.card-note { margin: 0 16px 8px; padding: 6px 10px; border-radius: 8px; background: #fdeaea; color: #a3231f; font-size: 13px; }
+.outdated-note { margin: 0; padding: 6px 16px; border-bottom: 1px solid #e4e7eb; background: #fdf3e1; color: #8f4a0b; font-size: 12px; }
+
+/* lists */
+table { width: 100%; border-collapse: collapse; }
+.list td, .list th { padding: 8px 6px; text-align: left; vertical-align: top; }
+.list td:first-child, .list th:first-child { padding-left: 16px; }
+.list td:last-child, .list th:last-child { padding-right: 16px; }
+.list tr + tr > td { border-top: 1px solid #e4e7eb; }
+.list tr.group > th { padding-top: 12px; padding-bottom: 2px; color: #9ca3af; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.list tr.group + tr > td { border-top: none; }
+.list tr.group.overdue > th, .due-overdue, .red { color: #dc2626; }
+.list tr.group.today > th, .due-today, .orange { color: #d97706; }
+.due-overdue, .due-today, .red, .orange, .yellow, .blue, .lightblue { font-weight: 600; }
+.yellow { color: #a16207; }
+.blue, .lightblue { color: #0891b2; }
+.title { font-weight: 600; }
+.sub { color: #6b7280; font-size: 13px; }
+.end { text-align: right; white-space: nowrap; }
+.when { width: 1%; white-space: nowrap; }
+.lead { width: 1%; padding-right: 0; }
+.tag, .nil { color: #9ca3af; }
+.mono { font-family: Menlo, Consolas, monospace; font-size: 12px; }
+.logs td { word-break: break-word; }
+.agenda tr.past > td, .agenda tr.past .title, .agenda tr.past .sub { color: #9ca3af; }
+.now-badge { display: inline-block; margin-top: 2px; padding: 0 6px; border-radius: 99px; background: #e0e7ff; color: #2563eb; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+tr.highlight .day { color: #2563eb; font-weight: 700; }
+.cal { white-space: nowrap; }
+
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #d1d5db; }
+.dot.red, .dot.critical, .dot.due-overdue { background: #dc2626; }
+.dot.orange, .dot.warning, .dot.due-today { background: #d97706; }
+.dot.yellow { background: #ca8a04; }
+.dot.info { background: #2563eb; }
+
+/* weather */
+.forecast { padding: 0 16px 8px; }
+.hours { margin: 4px 0 10px; table-layout: fixed; }
+.hours td { padding: 2px 0; text-align: center; white-space: nowrap; }
+.h-time { color: #6b7280; font-size: 11px; }
+.h-icon { font-size: 20px; }
+.h-temp { font-size: 15px; font-weight: 700; }
+.h-pop { color: #0891b2; font-size: 11px; }
+.pop { display: none; }
+.days td { padding: 6px 4px; white-space: nowrap; border-top: 1px solid #e4e7eb; }
+.days tr:first-child td { border-top: none; }
+.d-label { font-weight: 600; }
+.d-icon { text-align: center; }
+.d-min { color: #6b7280; text-align: right; }
+.d-max { font-weight: 700; }
+.d-rain { color: #0891b2; font-size: 12px; text-align: right; }
+.range { min-width: 60px; height: 6px; border-radius: 99px; background: #eef0f3; }
+.range span { display: block; height: 6px; border-radius: 99px; background: #f59e0b; }
+
+@media (max-width: 480px) {
+  .tile, .glance-item { width: 48% !important; }
+  .h-time, .h-pop { font-size: 10px !important; }
+}

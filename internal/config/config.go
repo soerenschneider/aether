@@ -69,6 +69,10 @@ type EmailConfig struct {
 	Recipients     []string `yaml:"recipient" validate:"required_without=RecipientsFile"`
 	RecipientsFile string   `yaml:"recipient_file" validate:"required_without=Recipients"`
 	Host           string   `yaml:"host" validate:"hostname_port"`
+
+	// address of the dashboard, e.g. "https://aether.example.org/". Links in the email point to it, without it the
+	// email contains no links to the dashboard.
+	DashboardURL string `yaml:"dashboard_url" validate:"omitempty,url"`
 }
 
 func (c *EmailConfig) GetUsername() (string, error) {
