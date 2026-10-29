@@ -149,7 +149,9 @@ func (c *CaldavDatasource) filter(entries []Entry) []Entry {
 			return filtered
 		}
 
-		if entry.Start.After(start) && entry.End.Before(end) {
+		// keep everything that has not ended before today, e.g. all-day events starting at midnight or multi-day
+		// events that started earlier
+		if entry.End.After(start) && entry.Start.Before(end) {
 			filtered = append(filtered, entry)
 		}
 	}
