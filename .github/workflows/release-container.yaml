@@ -8,6 +8,8 @@ permissions:
   contents: write
   pull-requests: write
   packages: write
+  # signing the image with cosign
+  id-token: write
 
 env:
   REGISTRY: ghcr.io
@@ -31,6 +33,10 @@ jobs:
         uses: actions/checkout@v4.1.0
         if: ${{ steps.release.outputs.release_created }}
 
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v4.1.2
+        if: ${{ steps.release.outputs.release_created }}
+
       - name: Log in to the container registry
         uses: docker/login-action@v3.3.0
         with:
@@ -49,10 +55,19 @@ jobs:
         if: ${{ steps.release.outputs.release_created }}
 
       - name: Build and push container image
+        id: build
         uses: docker/build-push-action@v6.15.0
         with:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+        if: ${{ steps.release.outputs.release_created }}
+
+      - name: Sign container image
+        env:
+          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        # keyless: the identity of this workflow is certified via GitHub's OIDC token and logged in Rekor
+        run: cosign sign --yes "${IMAGE}@${DIGEST}"
         if: ${{ steps.release.outputs.release_created }}
