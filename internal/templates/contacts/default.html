@@ -1,9 +1,16 @@
+{{ define "age" }}{{ if eq .Type "Birthday" }}turns {{ .Years }}{{ else }}{{ .Years }} years{{ end }}{{ end }}
+
 {{ define "tile" }}
-{{ if .Cards }}
+{{ $today := .Today }}
+{{ if $today }}
+<div class="tile-label">Today</div>
+<div class="tile-value wrap">{{ range $i, $card := $today }}{{ if $i }}, {{ end }}{{ $card.Name }}{{ end }}</div>
+<div class="tile-sub">{{ range $i, $card := $today }}{{ if $i }} · {{ end }}{{ $card.Type }}, {{ template "age" $card }}{{ end }}</div>
+{{ else if .Cards }}
 {{ with index .Cards 0 }}
 <div class="tile-label">{{ .Type }}</div>
 <div class="tile-value">{{ .Name }}</div>
-<div class="tile-sub">{{ .DateFormatted }} · {{ .Years }} years</div>
+<div class="tile-sub">{{ .When }} · {{ template "age" . }}</div>
 {{ end }}
 {{ end }}
 {{ end }}
@@ -17,14 +24,14 @@
 <table class="list">
     <tbody>
     {{ range .Cards }}
-    <tr>
+    <tr{{ if .IsToday }} class="highlight"{{ end }}>
         <td>
             <div class="title">{{ .Name }}</div>
-            {{ if .Type }}<div class="sub">{{ .Type }}</div>{{ end }}
+            <div class="sub">{{ .Type }}</div>
         </td>
         <td class="end">
-            <div>{{ .DateFormatted }}</div>
-            <div class="sub">{{ .Years }} years</div>
+            <div class="day">{{ .When }}</div>
+            <div class="sub">{{ template "age" . }}</div>
         </td>
     </tr>
     {{ end }}

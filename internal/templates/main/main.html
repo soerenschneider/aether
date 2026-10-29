@@ -153,6 +153,12 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+        .tile-value.wrap {
+            white-space: normal;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
         .tone-bad { color: var(--bad); }
         .tone-warn { color: var(--warn); }
         .tone-ok { color: var(--ok); }
@@ -220,6 +226,22 @@
         .nil { color: var(--faint); }
         .mono { font-family: var(--mono); font-size: .8rem; }
         .logs td:last-child { overflow-wrap: anywhere; }
+        .agenda .when { min-width: 7.5rem; }
+        .agenda tr.past > td { opacity: .45; }
+        .now-badge {
+            display: block;
+            width: fit-content;
+            margin-top: .2rem;
+            padding: 0 .45rem;
+            border-radius: 99px;
+            background: color-mix(in srgb, var(--accent) 14%, transparent);
+            color: var(--accent);
+            font-size: .7rem;
+            font-weight: 650;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+        .list tr.highlight .day { color: var(--accent); font-weight: 650; }
 
         .dot { display: inline-block; width: .5rem; height: .5rem; border-radius: 50%; background: var(--border); transform: translateY(-.05rem); }
         .dot.red, .dot.critical { background: var(--bad); }

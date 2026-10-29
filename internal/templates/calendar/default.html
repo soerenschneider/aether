@@ -1,11 +1,18 @@
 {{ define "tile" }}
-<div class="tile-label">Next up</div>
-{{ with .Next }}
-<div class="tile-value">{{ .Summary }}</div>
-<div class="tile-sub">{{ index .Formatted 0 }}{{ if eq (len .Formatted) 2 }} · {{ index .Formatted 1 }}{{ end }}{{ if .Location }} · {{ fixLocation .Location }}{{ end }}</div>
+{{ $next := .Next }}
+{{ with .Current }}
+<div class="tile-label">Now{{ with $.LaterToday }} · {{ . }} more today{{ end }}</div>
+<div class="tile-value wrap">{{ .Summary }}</div>
+<div class="tile-sub">until {{ .End.Format "15:04" }}{{ with $next }} · then {{ .Summary }} {{ $.ShortWhen . }}{{ end }}</div>
+{{ else }}
+<div class="tile-label">Next up{{ with $.MoreToday }} · {{ . }} more today{{ end }}</div>
+{{ with $next }}
+<div class="tile-value wrap">{{ .Summary }}</div>
+<div class="tile-sub">{{ $.ShortWhen . }}{{ if .Location }} · {{ fixLocation .Location }}{{ end }}</div>
 {{ else }}
 <div class="tile-value">Nothing planned</div>
 <div class="tile-sub">Your calendar is empty</div>
+{{ end }}
 {{ end }}
 {{ end }}
 
@@ -15,32 +22,19 @@
     <span class="meta">until {{ .To.Format "02.01." }}</span>
 </header>
 {{ if .Entries }}
-<table class="list">
+<table class="list agenda">
     <tbody>
-    {{ $prevCategory := "" }}
+    {{ range .Days }}
+    <tr class="group"><th colspan="2" scope="colgroup">{{ .Label }}</th></tr>
     {{ range .Entries }}
-    {{ $category := "Later" }}
-    {{ if lt .Start.Unix $.ThisWeekEnd.Unix }}
-    {{ $category = "This week" }}
-    {{ else if lt .Start.Unix $.NextWeekEnd.Unix }}
-    {{ $category = "Next week" }}
-    {{ else if lt .Start.Unix $.NextNextWeekEnd.Unix }}
-    {{ $category = "In two weeks" }}
-    {{ end }}
-    {{ if ne $category $prevCategory }}
-    <tr class="group"><th colspan="2" scope="colgroup">{{ $category }}</th></tr>
-    {{ end }}
-    <tr>
-        <td class="when">
-            <div class="title">{{ index .Formatted 0 }}</div>
-            <div class="sub">{{ if eq (len .Formatted) 2 }}{{ index .Formatted 1 }}{{ else }}All day{{ end }}</div>
-        </td>
+    <tr class="{{ if .Past }}past{{ end }}{{ if .Ongoing }}ongoing{{ end }}">
+        <td class="when sub">{{ .When }}{{ if .Ongoing }}<div class="now-badge">now</div>{{ end }}</td>
         <td>
             <div class="title">{{ .Summary }}</div>
             {{ if .Location }}<div class="sub">{{ if .LocationUrl }}<a href="{{ .LocationUrl }}" target="_blank" rel="noopener">{{ fixLocation .Location }}</a>{{ else }}{{ fixLocation .Location }}{{ end }}</div>{{ end }}
         </td>
     </tr>
-    {{ $prevCategory = $category }}
+    {{ end }}
     {{ end }}
     </tbody>
 </table>

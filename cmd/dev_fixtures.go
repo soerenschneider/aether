@@ -44,6 +44,8 @@ const (
 	scenarioFailing scenario = "failing"
 	// regular data, but the server goes away after the page has been loaded
 	scenarioStale scenario = "stale"
+	// lots happening today: several events and more than one anniversary
+	scenarioPacked scenario = "packed"
 )
 
 var scenarios = map[scenario]struct{}{
@@ -52,6 +54,7 @@ var scenarios = map[scenario]struct{}{
 	scenarioEmpty:   {},
 	scenarioFailing: {},
 	scenarioStale:   {},
+	scenarioPacked:  {},
 }
 
 func scenarioNames() []string {
@@ -340,6 +343,19 @@ func (f fakeCalendar) FetchData(_ context.Context) ([]caldav.Entry, error) {
 			start := inDays(i*2, 8+i%10, 0)
 			entries = append(entries, caldav.NewEntry(titles[i%len(titles)], locations[i%len(locations)], start, start.Add(90*time.Minute)))
 		}
+	case scenarioPacked:
+		now := time.Now()
+		entries = []caldav.Entry{
+			caldav.NewEntry("Team offsite", "", today(0, 0), inDays(1, 0, 0)),
+			// already over
+			caldav.NewEntry("Morning run", "", now.Add(-3*time.Hour), now.Add(-2*time.Hour)),
+			// currently running
+			caldav.NewEntry("Architecture review", "Room 4.12", now.Add(-30*time.Minute), now.Add(30*time.Minute)),
+			caldav.NewEntry("Lunch with Sam", "Markthalle Neun, Berlin", now.Add(2*time.Hour), now.Add(3*time.Hour)),
+			caldav.NewEntry("Dentist", "", now.Add(4*time.Hour), now.Add(5*time.Hour)),
+			caldav.NewEntry("Yoga", "Studio Kreuzberg", now.Add(7*time.Hour), now.Add(8*time.Hour)),
+			caldav.NewEntry("Dinner with Alex", "", inDays(1, 19, 0), inDays(1, 21, 30)),
+		}
 	default:
 		entries = []caldav.Entry{
 			caldav.NewEntry("Team standup", "", today(10, 0), today(10, 30)),
@@ -494,6 +510,12 @@ func (f fakeContacts) QueryAddressBook(_ context.Context, _ string, _ *webdavcar
 	case scenarioEmpty:
 		// out of the lookahead window, filtered by the datasource
 		contacts = []fakeContact{{"Paul", "Weber", vcard.FieldBirthday, 40, 33}}
+	case scenarioPacked:
+		contacts = []fakeContact{
+			{"Maria", "Schmidt", vcard.FieldBirthday, 0, 36},
+			{"Jonas", "Müller", vcard.FieldAnniversary, 0, 8},
+			{"Lea", "Fischer", vcard.FieldBirthday, 1, 29},
+		}
 	case scenarioBusy:
 		given := []string{"Maria", "Jonas", "Lea", "Maximilian-Alexander", "Sophie", "Noah", "Emilia", "Ben"}
 		family := []string{"Schmidt", "Müller", "Fischer", "von Hohenzollern-Sigmaringen", "Wagner", "Becker", "Hoffmann", "Schulz"}

@@ -71,16 +71,6 @@ func toEntry(event *ical.Component) Entry {
 	return entry
 }
 
-// Next returns the first entry that has not ended yet.
-func (d CaldavData) Next() *Entry {
-	for i := range d.Entries {
-		if d.Entries[i].End.After(d.Now) {
-			return &d.Entries[i]
-		}
-	}
-	return nil
-}
-
 // NewEntry builds an entry from already parsed values, e.g. for fake data during development.
 func NewEntry(summary, location string, start, end time.Time) Entry {
 	entry := Entry{
