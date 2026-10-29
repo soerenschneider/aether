@@ -106,6 +106,13 @@
             font-size: .9rem;
         }
         .notice::before { content: ""; flex: none; width: .5rem; height: .5rem; border-radius: 50%; background: var(--bad); transform: translateY(-.05rem); }
+        .notice.warn { border-color: color-mix(in srgb, var(--warn) 35%, var(--border)); background: color-mix(in srgb, var(--warn) 8%, var(--surface)); }
+        .notice.warn::before { background: var(--warn); }
+
+        /* datasources that could not be updated show their last data */
+        .outdated-note { margin: 0; padding: .4rem var(--pad); font-size: .8rem; color: var(--warn); background: color-mix(in srgb, var(--warn) 8%, transparent); border-bottom: 1px solid var(--border); }
+        .tile.outdated .tile-value, .tile.outdated .tile-sub { opacity: .6; }
+        .tile-outdated { margin-top: .35rem; font-size: .75rem; color: var(--warn); }
 
         /* now: one tile per datasource */
         .now {

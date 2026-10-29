@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/soerenschneider/aether/internal"
+	"github.com/soerenschneider/aether/pkg"
 
 	"github.com/rs/zerolog/log"
 	"go.uber.org/multierr"
@@ -72,6 +73,9 @@ func (b *CachedDatasource) GetData(ctx context.Context) (*internal.Data, error) 
 			log.Debug().Msgf("Updating cached datasource %q", b.datasource.Name())
 			data, err := b.datasource.GetData(ctx)
 			if err == nil {
+				if data != nil {
+					data.FetchedAt = time.Now()
+				}
 				b.data = data
 				b.nextRefresh = calculateNextRefreshInterval(b.refreshInterval, time.Now())
 				if data != nil && data.Incomplete {
@@ -79,6 +83,15 @@ func (b *CachedDatasource) GetData(ctx context.Context) (*internal.Data, error) 
 					log.Debug().Msgf("Data of cached datasource %q is incomplete, retrying at %v", b.datasource.Name(), b.nextRefresh)
 				}
 				return data, nil
+			}
+
+			// show the last data instead, the next call tries again. The rendered data contains relative dates
+			// ("today"), so it's only usable on the day it was fetched.
+			if b.data != nil && pkg.IsToday(b.data.FetchedAt, time.Now()) {
+				log.Warn().Err(err).Msgf("Could not update cached datasource %q, showing data from %v", b.datasource.Name(), b.data.FetchedAt)
+				outdated := *b.data
+				outdated.Outdated = true
+				return &outdated, nil
 			}
 
 			return nil, err

@@ -33,6 +33,9 @@
             {{ if .Failed }}
             <div class="notice" role="alert"><div>Could not load {{ range $i, $name := .Failed }}{{ if $i }}, {{ end }}<strong>{{ $name }}</strong>{{ end }}.</div></div>
             {{ end }}
+            {{ if .Outdated }}
+            <div class="notice warn" role="status"><div>Could not update {{ if eq (len .Outdated) 1 }}{{ with index .Outdated 0 }}<strong>{{ .Name }}</strong>, showing data from {{ .Since }}{{ end }}{{ else }}{{ range $i, $source := .Outdated }}{{ if $i }}, {{ end }}<strong>{{ $source.Name }}</strong> (data from {{ $source.Since }}){{ end }}{{ end }}.</div></div>
+            {{ end }}
 
             {{ if .Tiles }}
             <nav class="now" aria-label="Now">{{ .Tiles }}</nav>

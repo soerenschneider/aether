@@ -64,6 +64,14 @@ type aetherTemplateInput struct {
 	UpdatedAt time.Time
 	// names of the datasources that could not be fetched
 	Failed []string
+	// datasources that could not be updated and show older data
+	Outdated []outdatedSource
+}
+
+type outdatedSource struct {
+	Name string
+	// when the data was fetched, e.g. "10:05"
+	Since string
 }
 
 type dataPieces struct {
@@ -71,8 +79,10 @@ type dataPieces struct {
 	SimpleHtmlPieces  [][]byte
 	SummaryPieces     []summaryFragment
 	TilePieces        [][]byte
-	Names             []string
-	Failed            []string
+	// per datasource the time its outdated data was fetched, zero if the data is current
+	OutdatedSince []time.Time
+	Names         []string
+	Failed        []string
 }
 
 func NewApp(deps deps, templateData templates.TemplateData, conf *config.Config) (*App, error) {
@@ -258,6 +268,7 @@ func (a *App) fetchData(ctx context.Context) (dataPieces, error) {
 	tilePieces := make([][]byte, len(a.deps.datasources))
 	names := make([]string, len(a.deps.datasources))
 	failed := make([]bool, len(a.deps.datasources))
+	outdatedSince := make([]time.Time, len(a.deps.datasources))
 
 	ctx, cancel := context.WithTimeout(ctx, time.Second*60)
 
@@ -285,6 +296,9 @@ func (a *App) fetchData(ctx context.Context) (dataPieces, error) {
 				Name: ds.Name(),
 			}
 			tilePieces[index] = data.RenderedTile
+			if data.Outdated {
+				outdatedSince[index] = data.FetchedAt
+			}
 
 			log.Debug().Msgf("Finished datasource %d (%s) after %v", index, ds.Name(), time.Since(start))
 			return nil
@@ -312,11 +326,12 @@ func (a *App) fetchData(ctx context.Context) (dataPieces, error) {
 		TilePieces:        tilePieces,
 		Names:             names,
 		Failed:            failedNames,
+		OutdatedSince:     outdatedSince,
 	}, nil
 }
 
 // stitchTiles links every non-empty tile to the card of its datasource
-func (a *App) stitchTiles(tiles [][]byte, names []string) []byte {
+func (a *App) stitchTiles(tiles [][]byte, names []string, outdatedSince []time.Time) []byte {
 	htmlData := bytes.NewBuffer(nil)
 	for i := 0; i < len(tiles); i++ {
 		if len(bytes.TrimSpace(tiles[i])) == 0 {
@@ -327,6 +342,13 @@ func (a *App) stitchTiles(tiles [][]byte, names []string) []byte {
 		if provider, ok := a.pages[names[i]]; ok {
 			href = provider.PageName()
 		}
+		if !outdatedSince[i].IsZero() {
+			_, _ = fmt.Fprintf(htmlData, `<a class="tile outdated" href="%s">`, template.HTMLEscapeString(href))
+			_, _ = htmlData.Write(tiles[i])
+			_, _ = fmt.Fprintf(htmlData, `<div class="tile-outdated">Out of date · %s</div>`, formatSince(outdatedSince[i], time.Now()))
+			_, _ = htmlData.WriteString("</a>")
+			continue
+		}
 		_, _ = fmt.Fprintf(htmlData, `<a class="tile" href="%s">`, template.HTMLEscapeString(href))
 		_, _ = htmlData.Write(tiles[i])
 		_, _ = htmlData.WriteString("</a>")
@@ -336,7 +358,7 @@ func (a *App) stitchTiles(tiles [][]byte, names []string) []byte {
 }
 
 // stitchPieces wraps every non-empty piece in its own card, using the datasource name as anchor
-func (a *App) stitchPieces(pieces [][]byte, names []string) ([]byte, error) {
+func (a *App) stitchPieces(pieces [][]byte, names []string, outdatedSince []time.Time) ([]byte, error) {
 	htmlData := bytes.NewBuffer(nil)
 	for i := 0; i < len(pieces); i++ {
 		if len(bytes.TrimSpace(pieces[i])) == 0 {
@@ -344,6 +366,9 @@ func (a *App) stitchPieces(pieces [][]byte, names []string) ([]byte, error) {
 		}
 		id := template.HTMLEscapeString(pkg.NameToId(names[i]))
 		_, _ = fmt.Fprintf(htmlData, `<section class="card" id="%s">`, id)
+		if !outdatedSince[i].IsZero() {
+			_, _ = fmt.Fprintf(htmlData, `<p class="outdated-note">Out of date · last updated %s</p>`, formatSince(outdatedSince[i], time.Now()))
+		}
 		_, _ = htmlData.Write(pieces[i])
 		_, _ = htmlData.WriteString("</section>")
 	}
@@ -364,7 +389,14 @@ func (a *App) getRenderedData(ctx context.Context) (*internal.Data, error) {
 
 	updatedAt := time.Now()
 
-	regularHtmlData, err := a.stitchPieces(data.RegularHtmlPieces, data.Names)
+	var outdated []outdatedSource
+	for i, since := range data.OutdatedSince {
+		if !since.IsZero() {
+			outdated = append(outdated, outdatedSource{Name: data.Names[i], Since: formatSince(since, updatedAt)})
+		}
+	}
+
+	regularHtmlData, err := a.stitchPieces(data.RegularHtmlPieces, data.Names, data.OutdatedSince)
 	if err != nil {
 		return nil, err
 	}
@@ -372,15 +404,16 @@ func (a *App) getRenderedData(ctx context.Context) (*internal.Data, error) {
 	regularHtmlDoc := bytes.NewBuffer(nil)
 	if err := a.aetherTemplate.Execute(regularHtmlDoc, aetherTemplateInput{
 		Summary:   template.HTML(summaryHtmlData.String()),
-		Tiles:     template.HTML(a.stitchTiles(data.TilePieces, data.Names)),
+		Tiles:     template.HTML(a.stitchTiles(data.TilePieces, data.Names, data.OutdatedSince)),
 		Data:      template.HTML(regularHtmlData),
 		UpdatedAt: updatedAt,
 		Failed:    data.Failed,
+		Outdated:  outdated,
 	}); err != nil {
 		return nil, err
 	}
 
-	simplifiedHtmlData, err := a.stitchPieces(data.SimpleHtmlPieces, data.Names)
+	simplifiedHtmlData, err := a.stitchPieces(data.SimpleHtmlPieces, data.Names, data.OutdatedSince)
 	if err != nil {
 		return nil, err
 	}
@@ -391,6 +424,7 @@ func (a *App) getRenderedData(ctx context.Context) (*internal.Data, error) {
 		Data:      template.HTML(simplifiedHtmlData),
 		UpdatedAt: updatedAt,
 		Failed:    data.Failed,
+		Outdated:  outdated,
 	}); err != nil {
 		return nil, err
 	}
@@ -457,4 +491,12 @@ func (a *App) sendEmail(ctx context.Context) {
 		return
 	}
 	log.Info().Msg("Successfully dispatched email")
+}
+
+// formatSince formats the time data was fetched at, with the weekday if it wasn't today.
+func formatSince(t, now time.Time) string {
+	if pkg.IsToday(t, now) {
+		return t.Format("15:04")
+	}
+	return t.Format("Mon 15:04")
 }

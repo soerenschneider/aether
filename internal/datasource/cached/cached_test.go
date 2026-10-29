@@ -2,6 +2,7 @@ package cached
 
 import (
 	"context"
+	"errors"
 	"reflect"
 	"testing"
 	"time"
@@ -45,7 +46,9 @@ func Test_calculateNextRefreshInterval(t *testing.T) {
 }
 
 type fakeDatasource struct {
-	data  []*internal.Data
+	data []*internal.Data
+	// errors returned instead of the data at the same position
+	errs  []error
 	calls int
 }
 
@@ -54,9 +57,12 @@ func (f *fakeDatasource) Name() string {
 }
 
 func (f *fakeDatasource) GetData(_ context.Context) (*internal.Data, error) {
-	data := f.data[min(f.calls, len(f.data)-1)]
+	i := min(f.calls, len(f.data)-1)
 	f.calls++
-	return data, nil
+	if i < len(f.errs) && f.errs[i] != nil {
+		return nil, f.errs[i]
+	}
+	return f.data[i], nil
 }
 
 func TestCachedDatasource_incompleteData(t *testing.T) {
@@ -90,5 +96,61 @@ func TestCachedDatasource_incompleteData(t *testing.T) {
 	nearMidnight := calculateNextRefreshInterval(24*time.Hour, time.Now()).Sub(time.Now()) <= incompleteRetryInterval
 	if until := time.Until(cache.nextRefresh); until <= incompleteRetryInterval && !nearMidnight {
 		t.Errorf("expected complete data to be kept for the regular interval, but it's only kept for %v", until)
+	}
+}
+
+func TestCachedDatasource_outdatedData(t *testing.T) {
+	boom := errors.New("boom")
+	first := &internal.Data{Summary: []string{"first"}}
+	second := &internal.Data{Summary: []string{"second"}}
+	fake := &fakeDatasource{data: []*internal.Data{first, nil, second}, errs: []error{nil, boom, nil}}
+
+	cache, err := New(fake, WithRefreshInterval(30*time.Minute))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	data, err := cache.GetData(context.Background())
+	if err != nil || data != first || data.Outdated || data.FetchedAt.IsZero() {
+		t.Fatalf("unexpected first result: %+v, %v", data, err)
+	}
+
+	// the update fails: the last data is shown, marked as outdated
+	cache.nextRefresh = time.Now().Add(-time.Second)
+	data, err = cache.GetData(context.Background())
+	if err != nil {
+		t.Fatalf("expected the last data instead of an error, got %v", err)
+	}
+	if !data.Outdated || data.Summary[0] != "first" || !data.FetchedAt.Equal(first.FetchedAt) {
+		t.Errorf("expected the first data marked as outdated, got %+v", data)
+	}
+	if first.Outdated {
+		t.Error("the cached data must not be modified")
+	}
+
+	// the next call tries again and succeeds
+	data, err = cache.GetData(context.Background())
+	if err != nil || data != second || data.Outdated {
+		t.Errorf("expected the second data after a successful retry, got %+v, %v", data, err)
+	}
+	if fake.calls != 3 {
+		t.Errorf("expected 3 calls, got %d", fake.calls)
+	}
+}
+
+func TestCachedDatasource_outdatedDataFromYesterday(t *testing.T) {
+	boom := errors.New("boom")
+	fake := &fakeDatasource{data: []*internal.Data{nil}, errs: []error{boom}}
+	cache, _ := New(fake)
+
+	// no data at all
+	if _, err := cache.GetData(context.Background()); !errors.Is(err, boom) {
+		t.Errorf("expected the error without earlier data, got %v", err)
+	}
+
+	// rendered data contains relative dates, so data from yesterday is not shown
+	cache.data = &internal.Data{Summary: []string{"yesterday"}, FetchedAt: time.Now().AddDate(0, 0, -1)}
+	if _, err := cache.GetData(context.Background()); !errors.Is(err, boom) {
+		t.Errorf("expected the error instead of data from yesterday, got %v", err)
 	}
 }

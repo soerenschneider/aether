@@ -21,6 +21,7 @@ import (
 	"github.com/soerenschneider/aether/internal"
 	"github.com/soerenschneider/aether/internal/datasource/alertmanager"
 	"github.com/soerenschneider/aether/internal/datasource/astral"
+	"github.com/soerenschneider/aether/internal/datasource/cached"
 	"github.com/soerenschneider/aether/internal/datasource/caldav"
 	"github.com/soerenschneider/aether/internal/datasource/carddav"
 	"github.com/soerenschneider/aether/internal/datasource/logs"
@@ -48,15 +49,18 @@ const (
 	scenarioStale scenario = "stale"
 	// lots happening today: several events and more than one anniversary
 	scenarioPacked scenario = "packed"
+	// some datasources could not be updated and show their last data
+	scenarioOutdated scenario = "outdated"
 )
 
 var scenarios = map[scenario]struct{}{
-	scenarioNormal:  {},
-	scenarioBusy:    {},
-	scenarioEmpty:   {},
-	scenarioFailing: {},
-	scenarioStale:   {},
-	scenarioPacked:  {},
+	scenarioNormal:   {},
+	scenarioBusy:     {},
+	scenarioEmpty:    {},
+	scenarioFailing:  {},
+	scenarioStale:    {},
+	scenarioPacked:   {},
+	scenarioOutdated: {},
 }
 
 func scenarioNames() []string {
@@ -159,6 +163,14 @@ func buildFakeDatasources(s scenario, recorder *errorRecorder) ([]Datasource, er
 		}
 	}
 
+	if s == scenarioOutdated {
+		for i, ds := range datasources {
+			if name := ds.Name(); name == "Calendar" || name == "Weather Berlin" {
+				datasources[i] = outdatedDatasource{Datasource: ds, fetchedAt: time.Now().Add(-25 * time.Minute)}
+			}
+		}
+	}
+
 	if s == scenarioFailing {
 		// a second weather location that can't be reached, the family calendar fails as well (see fakeCalendar)
 		datasources = append(datasources, failingDatasource{name: "Weather Hamburg"})
@@ -179,6 +191,26 @@ func loadTemplates(defaultTemplate, simpleTemplate string) (templates.TemplateDa
 		ret.SimpleTemplate, err = templates.GetTemplate(simpleTemplate)
 	}
 	return ret, err
+}
+
+// outdatedDatasource returns its data as if the cache could not update it, see cached.CachedDatasource.
+type outdatedDatasource struct {
+	Datasource
+	fetchedAt time.Time
+}
+
+func (o outdatedDatasource) Unwrap() cached.Datasource {
+	return o.Datasource
+}
+
+func (o outdatedDatasource) GetData(ctx context.Context) (*internal.Data, error) {
+	data, err := o.Datasource.GetData(ctx)
+	if err != nil {
+		return nil, err
+	}
+	data.FetchedAt = o.fetchedAt
+	data.Outdated = true
+	return data, nil
 }
 
 type failingDatasource struct {
