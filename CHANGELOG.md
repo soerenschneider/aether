@@ -1,5 +1,49 @@
 # Changelog
 
+## [1.2.0](https://github.com/soerenschneider/aether/compare/v1.1.1...v1.2.0) (2026-10-29)
+
+
+### Features
+
+* add ability to display victorialogs logs ([7d17d4b](https://github.com/soerenschneider/aether/commit/7d17d4be9826ba60dce706da6c06d6119d65dda3))
+* **cache:** show outdated data when updates fail ([f624773](https://github.com/soerenschneider/aether/commit/f6247730bb471e0abec92318bd9a5248d0dbb5b9))
+* **caldav:** expand recurring events ([21a69ee](https://github.com/soerenschneider/aether/commit/21a69ee8cfe3912a035e83aadd99c32a9b23c413))
+* **caldav:** support multiple calendars ([1ff912c](https://github.com/soerenschneider/aether/commit/1ff912c026d4758fa8e192319ed80af2542d49be))
+* **calendar:** add month view ([7e0b4d5](https://github.com/soerenschneider/aether/commit/7e0b4d5bfd5b9fc1df3f04b53796456283176f28))
+* **calendar:** group agenda by day and show today's anniversaries ([5829324](https://github.com/soerenschneider/aether/commit/5829324faff99e97feb55e5c3fbf085fd620017d))
+* **dev:** add dev server with fake data ([b1e3814](https://github.com/soerenschneider/aether/commit/b1e3814d0d6535e819d171159765d93507b03596))
+* **email:** send an email-friendly version of the dashboard ([580c037](https://github.com/soerenschneider/aether/commit/580c0372db8991562c841c07ef803a4fa23d84ae))
+* **tasks:** group tasks by due date ([dce0804](https://github.com/soerenschneider/aether/commit/dce080458a652e1426142a259e39592314302155))
+* **ui:** pack cards and cap long lists ([d5e5978](https://github.com/soerenschneider/aether/commit/d5e59782f4b426d8e1fb307e70ef1e4c85a74235))
+* **ui:** redesign dashboard and refresh it with htmx ([1cd9c2d](https://github.com/soerenschneider/aether/commit/1cd9c2db1a32ead4bc2e0263cb0d35cbd0289591))
+* **ui:** redesign dashboard and refresh it with htmx ([05c8cf9](https://github.com/soerenschneider/aether/commit/05c8cf92807cc309dd637d6f62ca6f2ffe334995))
+
+
+### Bug Fixes
+
+* address golangci-lint findings ([77d53ce](https://github.com/soerenschneider/aether/commit/77d53ceeead7b3f52c8476ca3dc84b5185ad2c98))
+* **cache:** retry incomplete data sooner ([a96a775](https://github.com/soerenschneider/aether/commit/a96a7751bbae0f89f8d66bafdb24e47711494f4a))
+* **caldav:** show all-day events of today ([9f98681](https://github.com/soerenschneider/aether/commit/9f986812c0d89007b0d5b359d97d6d07f69da91a))
+* **carddav:** count age towards the next anniversary ([acb81ce](https://github.com/soerenschneider/aether/commit/acb81ce5c1779e3968fe81809f7ee7625539482c))
+* count time per datasource ([83cab32](https://github.com/soerenschneider/aether/commit/83cab32dd7b35aad35a05e12cfee4b9d099beb7a))
+* **deps:** bump alpine from 3.21.2 to 3.21.3 ([7aa367a](https://github.com/soerenschneider/aether/commit/7aa367a962e93936da17132d96e97cf1e7d7d749))
+* **deps:** bump alpine from 3.21.2 to 3.21.3 ([c5af587](https://github.com/soerenschneider/aether/commit/c5af587e887960143fd2bbcf94171828cdac603a))
+* **deps:** bump github.com/go-playground/validator/v10 ([41157ef](https://github.com/soerenschneider/aether/commit/41157ef037dcac9a2c15ac1bdd1f103ff7ab68ab))
+* **deps:** bump github.com/go-playground/validator/v10 from 10.24.0 to 10.25.0 ([df72a6e](https://github.com/soerenschneider/aether/commit/df72a6e5e03e678667afe9dd301a2f49d360a605))
+* **deps:** bump github.com/prometheus/alertmanager from 0.28.0 to 0.28.1 ([5278910](https://github.com/soerenschneider/aether/commit/5278910bc333bc2318c59c5f4ecd28bbb76dee9d))
+* **deps:** bump github.com/prometheus/alertmanager from 0.28.0 to 0.28.1 ([c07df28](https://github.com/soerenschneider/aether/commit/c07df28d88c99cd516678bf1f67bb1cfd190c893))
+* **deps:** bump github.com/prometheus/alertmanager from 0.28.0 to 0.28.1 ([1040a7e](https://github.com/soerenschneider/aether/commit/1040a7eb76bb072278f557a635b880b3533922ca))
+* **deps:** bump github.com/prometheus/client_golang ([bad9ce2](https://github.com/soerenschneider/aether/commit/bad9ce26304281139aa3fd968d7b6b7f0edc2b43))
+* **deps:** bump github.com/prometheus/client_golang from 1.20.5 to 1.21.1 ([c07266d](https://github.com/soerenschneider/aether/commit/c07266df6699ea0c3b58ef3732c7b3a2fe2a1eb9))
+* **deps:** bump golang from 1.23.6 to 1.24.1 ([a774b2e](https://github.com/soerenschneider/aether/commit/a774b2e924829ff91632fcad83f23d3692f2d0f4))
+* **deps:** bump golang from 1.23.6 to 1.24.1 ([a9e8079](https://github.com/soerenschneider/aether/commit/a9e807917ef376469623ff60c50b0f223a99a992))
+* **deps:** bump golang.org/x/net from 0.34.0 to 0.36.0 ([b0c1042](https://github.com/soerenschneider/aether/commit/b0c10420a24b13bbc87cb41019e481eb037e1d19))
+* **deps:** bump golang.org/x/net from 0.34.0 to 0.36.0 ([ea36a95](https://github.com/soerenschneider/aether/commit/ea36a9595814dea56646b588138ae945afcddad9))
+* don't fail when single datasource returns error ([1c1fa20](https://github.com/soerenschneider/aether/commit/1c1fa200d822d546af33ba1b21e603b5598039bd))
+* pluralize durations correctly ([5715e45](https://github.com/soerenschneider/aether/commit/5715e4520beabf1c50ff317a0c67afab0823c6a8))
+* strip trailing newlines from secret files ([a4967a1](https://github.com/soerenschneider/aether/commit/a4967a1109869477460af436060f2c42e6e2ef97))
+* use custom template files instead of the default templates ([f41b63b](https://github.com/soerenschneider/aether/commit/f41b63b308e03476cd0d73f20ff5a61fab2db625))
+
 ## [1.1.1](https://github.com/soerenschneider/aether/compare/v1.1.0...v1.1.1) (2025-02-17)
 
 
