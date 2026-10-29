@@ -37,9 +37,11 @@ type CarddavDatasource struct {
 	password      string
 	lookaheadDays int
 
-	davClient          DavClient
-	regularTemplate    *template.Template
-	simpleTemplate     *template.Template
+	davClient       DavClient
+	regularTemplate *template.Template
+	simpleTemplate  *template.Template
+	// replaces the default template if set, see WithTemplateFile
+	customTemplate     []byte
 	httpClient         *http.Client
 	excludeFromSummary bool
 }
@@ -61,6 +63,12 @@ func New(endpoint string, templateData templates.TemplateData, opts ...Opt) (*Ca
 			errs = multierr.Append(errs, err)
 		}
 	}
+	if errs != nil {
+		return nil, errs
+	}
+	if len(ds.customTemplate) > 0 {
+		templateData.DefaultTemplate = ds.customTemplate
+	}
 
 	var err error
 	if ds.davClient == nil {
@@ -72,8 +80,7 @@ func New(endpoint string, templateData templates.TemplateData, opts ...Opt) (*Ca
 		}
 
 		if err != nil {
-			errs = multierr.Append(errs, fmt.Errorf("creating client: %w", err))
-			return nil, errs
+			return nil, fmt.Errorf("creating client: %w", err)
 		}
 
 		ds.davClient = client

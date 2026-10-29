@@ -3,7 +3,6 @@ package carddav
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
 	"os"
 )
@@ -19,6 +18,7 @@ func WithClient(client DavClient) Opt {
 	}
 }
 
+// WithTemplateFile replaces the default template with the template in the given file.
 func WithTemplateFile(file string) Opt {
 	return func(ds *CarddavDatasource) error {
 		data, err := os.ReadFile(file)
@@ -26,12 +26,7 @@ func WithTemplateFile(file string) Opt {
 			return err
 		}
 
-		temp, err := template.New("anniversaries").Parse(string(data))
-		if err != nil {
-			return err
-		}
-
-		ds.regularTemplate = temp
+		ds.customTemplate = data
 		return nil
 	}
 }

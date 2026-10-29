@@ -2,7 +2,6 @@ package alertmanager
 
 import (
 	"errors"
-	"html/template"
 	"os"
 	"strings"
 
@@ -38,6 +37,7 @@ func WithScheme(scheme string) Opt {
 	}
 }
 
+// WithTemplateFile replaces the default template with the template in the given file.
 func WithTemplateFile(file string) Opt {
 	return func(ds *AlertmanagerDatasource) error {
 		data, err := os.ReadFile(file)
@@ -45,12 +45,7 @@ func WithTemplateFile(file string) Opt {
 			return err
 		}
 
-		temp, err := template.New("alertmanager").Parse(string(data))
-		if err != nil {
-			return err
-		}
-
-		ds.defaultTemplate = temp
+		ds.customTemplate = data
 		return nil
 	}
 }

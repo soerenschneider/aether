@@ -29,8 +29,10 @@ type Datasource struct {
 	limit           int
 	defaultTemplate *template.Template
 	simpleTemplate  *template.Template
-	taskRcFile      string
-	client          Client
+	// replaces the default template if set, see WithTemplateFile
+	customTemplate []byte
+	taskRcFile     string
+	client         Client
 
 	summaryDays        int
 	excludeFromSummary bool
@@ -58,27 +60,34 @@ func New(client Client, templateData templates.TemplateData, opts ...Opt) (*Data
 			errs = multierr.Append(errs, err)
 		}
 	}
-
-	var err error
-	tw.defaultTemplate, err = template.New("taskwarrior-default").Funcs(
-		map[string]any{
-			"formatDue":     formatDueTime,
-			"formatProject": formatProject,
-			"formatTags":    formatTags,
-			"getCssClass":   getCssClass,
-		}).Parse(string(templateData.DefaultTemplate))
-
-	if len(templateData.SimpleTemplate) > 0 {
-		tw.simpleTemplate, err = template.New("taskwarrior-simple").Funcs(
-			map[string]any{
-				"formatDue":     formatDueTime,
-				"formatProject": formatProject,
-				"formatTags":    formatTags,
-				"getCssClass":   getCssClass,
-			}).Parse(string(templateData.SimpleTemplate))
+	if errs != nil {
+		return nil, errs
+	}
+	if len(tw.customTemplate) > 0 {
+		templateData.DefaultTemplate = tw.customTemplate
 	}
 
-	return tw, err
+	funcMap := template.FuncMap{
+		"formatDue":     formatDueTime,
+		"formatProject": formatProject,
+		"formatTags":    formatTags,
+		"getCssClass":   getCssClass,
+	}
+
+	var err error
+	tw.defaultTemplate, err = template.New("taskwarrior-default").Funcs(funcMap).Parse(string(templateData.DefaultTemplate))
+	if err != nil {
+		return nil, err
+	}
+
+	if len(templateData.SimpleTemplate) > 0 {
+		tw.simpleTemplate, err = template.New("taskwarrior-simple").Funcs(funcMap).Parse(string(templateData.SimpleTemplate))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return tw, nil
 }
 
 func (t *Datasource) Name() string {

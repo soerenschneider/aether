@@ -2,7 +2,6 @@ package taskwarrior
 
 import (
 	"errors"
-	"html/template"
 	"os"
 )
 
@@ -28,6 +27,7 @@ func WithSummaryDays(days int) Opt {
 	}
 }
 
+// WithTemplateFile replaces the default template with the template in the given file.
 func WithTemplateFile(file string) Opt {
 	return func(ds *Datasource) error {
 		data, err := os.ReadFile(file)
@@ -35,12 +35,7 @@ func WithTemplateFile(file string) Opt {
 			return err
 		}
 
-		temp, err := template.New("taskwarrior").Parse(string(data))
-		if err != nil {
-			return err
-		}
-
-		ds.defaultTemplate = temp
+		ds.customTemplate = data
 		return nil
 	}
 }

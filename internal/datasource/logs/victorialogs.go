@@ -35,8 +35,10 @@ type VictorialogsClient struct {
 	query    string
 	querier  Querier
 
-	regularTemplate    *template.Template
-	simpleTemplate     *template.Template
+	regularTemplate *template.Template
+	simpleTemplate  *template.Template
+	// replaces the default template if set, see WithTemplateFile
+	customTemplate     []byte
 	httpClient         *http.Client
 	excludeFromSummary bool
 }
@@ -59,6 +61,12 @@ func New(endpoint string, templateData templates.TemplateData, opts ...Opt) (*Vi
 		if err := opt(ds); err != nil {
 			errs = multierr.Append(errs, err)
 		}
+	}
+	if errs != nil {
+		return nil, errs
+	}
+	if len(ds.customTemplate) > 0 {
+		templateData.DefaultTemplate = ds.customTemplate
 	}
 
 	funcMap := template.FuncMap{

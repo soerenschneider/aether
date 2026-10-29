@@ -30,8 +30,10 @@ type AlertmanagerDatasource struct {
 	basePath string
 	scheme   string
 
-	defaultTemplate    *template.Template
-	simpleTemplate     *template.Template
+	defaultTemplate *template.Template
+	simpleTemplate  *template.Template
+	// replaces the default template if set, see WithTemplateFile
+	customTemplate     []byte
 	limit              int
 	excludeFromSummary bool
 }
@@ -56,6 +58,12 @@ func New(host string, templateData templates.TemplateData, opts ...Opt) (*Alertm
 		if err := opt(ds); err != nil {
 			errs = multierr.Append(errs, err)
 		}
+	}
+	if errs != nil {
+		return nil, errs
+	}
+	if len(ds.customTemplate) > 0 {
+		templateData.DefaultTemplate = ds.customTemplate
 	}
 
 	if ds.client == nil {
@@ -85,7 +93,7 @@ func New(host string, templateData templates.TemplateData, opts ...Opt) (*Alertm
 		}
 	}
 
-	return ds, errs
+	return ds, nil
 }
 
 func (a *AlertmanagerDatasource) Name() string {
@@ -110,7 +118,7 @@ func (a *AlertmanagerDatasource) GetData(ctx context.Context) (*internal.Data, e
 
 	var renderedSimpleTemplate bytes.Buffer
 	if a.simpleTemplate != nil {
-		if err := a.defaultTemplate.Execute(&renderedSimpleTemplate, alerts); err != nil {
+		if err := a.simpleTemplate.Execute(&renderedSimpleTemplate, alerts); err != nil {
 			return nil, err
 		}
 	}
