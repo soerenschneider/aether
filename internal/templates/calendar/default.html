@@ -20,6 +20,7 @@
     <h2>Agenda</h2>
     {{ if .Entries }}<span class="count">{{ len .Entries }}</span>{{ end }}
     <span class="meta">until {{ .To.Format "02.01." }}</span>
+    {{ with .MonthLink }}<a class="head-link" href="{{ . }}">Month →</a>{{ end }}
 </header>
 {{ if .Failed }}
 <p class="card-note">Could not load {{ range $i, $name := .Failed }}{{ if $i }}, {{ end }}{{ $name }}{{ end }}</p>

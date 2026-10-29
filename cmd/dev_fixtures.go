@@ -108,7 +108,11 @@ func buildFakeDatasources(s scenario, recorder *errorRecorder) ([]Datasource, er
 			if err != nil {
 				return err
 			}
-			return add(caldav.New(client, tmpl))
+			monthTemplate, err := templates.GetTemplate("calendar/month.html")
+			if err != nil {
+				return err
+			}
+			return add(caldav.New(client, tmpl, caldav.WithMonthTemplate(monthTemplate)))
 		},
 		func() error {
 			tmpl, err := loadTemplates("taskwarrior/default.html", "")
@@ -325,13 +329,17 @@ const (
 // entries of the family calendar, all others belong to the private calendar. Entries listed here with true are in
 // both calendars.
 var familyEntries = map[string]bool{
-	"Moving day":       false,
-	"Dinner with Alex": true,
-	"Team offsite":     false,
-	"Pick up parcel":   false,
-	"Birthday party":   false,
-	"Yoga":             false,
-	"Lunch with Sam":   true,
+	"Moving day":             false,
+	"Dinner with Alex":       true,
+	"Team offsite":           false,
+	"Pick up parcel":         false,
+	"Birthday party":         false,
+	"Yoga":                   false,
+	"Lunch with Sam":         true,
+	"Parents' evening":       false,
+	"Autumn holidays":        false,
+	"Swimming with the kids": false,
+	"Farmers market":         true,
 }
 
 type fakeCalendar struct {
@@ -401,7 +409,23 @@ func (f fakeCalendar) allEntries(_ context.Context) ([]caldav.Entry, error) {
 			caldav.NewEntry("Dentist", "", now.Add(4*time.Hour), now.Add(5*time.Hour)),
 			caldav.NewEntry("Yoga", "Studio Kreuzberg", now.Add(7*time.Hour), now.Add(8*time.Hour)),
 			caldav.NewEntry("Dinner with Alex", "", inDays(1, 19, 0), inDays(1, 21, 30)),
+			caldav.NewEntry("Parents' evening", "Grundschule am Park", inDays(-6, 19, 0), inDays(-6, 20, 30)),
+			// multi-day, all-day
+			caldav.NewEntry("Autumn holidays", "", inDays(9, 0, 0), inDays(14, 0, 0)),
 		}
+		// regular appointments, so the month view has something to show before and after today
+		for d := -35; d <= 42; d++ {
+			day := inDays(d, 0, 0)
+			switch {
+			case day.Weekday() == time.Tuesday:
+				entries = append(entries, caldav.NewEntry("Swimming with the kids", "Stadtbad Neukölln", inDays(d, 17, 0), inDays(d, 18, 0)))
+			case day.Weekday() == time.Thursday && d != 0:
+				entries = append(entries, caldav.NewEntry("Climbing", "Boulderklub Kreuzberg", inDays(d, 19, 0), inDays(d, 21, 0)))
+			case day.Weekday() == time.Saturday && d%14 < 7:
+				entries = append(entries, caldav.NewEntry("Farmers market", "", inDays(d, 10, 0), inDays(d, 11, 0)))
+			}
+		}
+		sort.Slice(entries, func(i, j int) bool { return entries[i].Start.Before(entries[j].Start) })
 	default:
 		entries = []caldav.Entry{
 			caldav.NewEntry("Team standup", "", today(10, 0), today(10, 30)),

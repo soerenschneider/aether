@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"path"
+	"strings"
 	"sync"
 	"time"
 
@@ -18,6 +20,8 @@ import (
 type HttpServer struct {
 	datasource Datasource
 	httpConfig config.HttpConfig
+	// additional pages next to the dashboard, by their path relative to it
+	pages map[string]http.HandlerFunc
 }
 
 type Datasource interface {
@@ -29,7 +33,22 @@ func NewServer(datasource Datasource, conf config.HttpConfig) (*HttpServer, erro
 	return &HttpServer{
 		httpConfig: conf,
 		datasource: datasource,
+		pages:      map[string]http.HandlerFunc{},
 	}, nil
+}
+
+// AddPage adds a page next to the dashboard, must be called before Run.
+func (h *HttpServer) AddPage(name string, handler http.HandlerFunc) {
+	h.pages[name] = handler
+}
+
+// pagePath resolves the path of a page the same way a browser resolves a relative link on the dashboard.
+func (h *HttpServer) pagePath(name string) string {
+	base := h.httpConfig.ServePath
+	if !strings.HasSuffix(base, "/") {
+		base = path.Dir(base)
+	}
+	return path.Join(base, name)
 }
 
 func (h *HttpServer) handler(w http.ResponseWriter, r *http.Request) {
@@ -84,6 +103,13 @@ func (h *HttpServer) Run(ctx context.Context, wg *sync.WaitGroup) error {
 	} else {
 		mux.HandleFunc(h.httpConfig.ServePath, h.handler)
 		mux.HandleFunc("/text", h.text)
+	}
+
+	for name, handler := range h.pages {
+		if h.httpConfig.UseGzip {
+			handler = makeGzipHandler(handler, h.httpConfig.GzipCompressionLevel)
+		}
+		mux.HandleFunc(h.pagePath(name), handler)
 	}
 
 	server := http.Server{

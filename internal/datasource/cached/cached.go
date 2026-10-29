@@ -84,6 +84,11 @@ func (b *CachedDatasource) GetData(ctx context.Context) (*internal.Data, error) 
 	return b.data, nil
 }
 
+// Unwrap returns the datasource that is cached.
+func (b *CachedDatasource) Unwrap() Datasource {
+	return b.datasource
+}
+
 func (b *CachedDatasource) Name() string {
 	return b.datasource.Name()
 }

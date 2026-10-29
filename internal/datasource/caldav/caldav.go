@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -31,7 +32,13 @@ type CaldavDatasource struct {
 
 	defaultTemplate    *template.Template
 	simpleTemplate     *template.Template
+	monthTemplate      *template.Template
 	excludeFromSummary bool
+
+	// all entries of the last update, sorted, for the month view
+	mutex   sync.RWMutex
+	entries []Entry
+	failed  []string
 }
 
 type CaldavClient interface {
@@ -111,9 +118,14 @@ func (c *CaldavDatasource) GetData(ctx context.Context) (*internal.Data, error) 
 	if partialErr != nil {
 		data.Failed = partialErr.Calendars
 	}
+	data.MonthLink = c.PageName()
 
 	// sort before filtering, as the filter stops after the maximum amount of entries
 	sortEntries(data.Entries)
+	c.mutex.Lock()
+	c.entries = data.Entries
+	c.failed = data.Failed
+	c.mutex.Unlock()
 	data.Entries = c.filter(data.Entries)
 	if len(data.Entries) == c.maxEntries {
 		data.To = data.Entries[len(data.Entries)-1].Start

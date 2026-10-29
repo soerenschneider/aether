@@ -1,0 +1,75 @@
+<div id="month" class="month-view">
+    <div class="month-head">
+        <h1>{{ .Title }}</h1>
+        {{ with .Calendars }}
+        <div class="legend">{{ range . }}<span class="cal cal-{{ .Color }}">{{ .Name }}</span>{{ end }}</div>
+        {{ end }}
+        <nav class="month-nav" aria-label="Months">
+            <a class="btn" href="?month={{ .Prev }}" title="Previous month" aria-label="Previous month"
+               hx-get="?month={{ .Prev }}" hx-select="#month" hx-target="#month" hx-swap="outerHTML" hx-push-url="true">‹</a>
+            <a class="btn{{ if .IsCurrentMonth }} is-current{{ end }}" href="?"
+               hx-get="?" hx-select="#month" hx-target="#month" hx-swap="outerHTML" hx-push-url="true">Today</a>
+            <a class="btn" href="?month={{ .Next }}" title="Next month" aria-label="Next month"
+               hx-get="?month={{ .Next }}" hx-select="#month" hx-target="#month" hx-swap="outerHTML" hx-push-url="true">›</a>
+        </nav>
+    </div>
+
+    {{ if .Failed }}
+    <p class="card-note">Could not load {{ range $i, $name := .Failed }}{{ if $i }}, {{ end }}{{ $name }}{{ end }}</p>
+    {{ end }}
+
+    <table class="month">
+        <thead>
+        <tr>{{ range .Weekdays }}<th scope="col">{{ . }}</th>{{ end }}</tr>
+        </thead>
+        <tbody>
+        {{ range .Weeks }}
+        <tr>
+            {{ range . }}
+            <td class="day{{ if .Today }} today{{ end }}{{ if .Past }} past{{ end }}{{ if not .InMonth }} outside{{ end }}{{ if .Weekend }} weekend{{ end }}">
+                {{ if and .InMonth .Entries }}<a class="day-num" href="#d-{{ .Key }}">{{ .Date.Day }}</a>{{ else }}<span class="day-num">{{ .Date.Day }}</span>{{ end }}
+                {{ if .Entries }}
+                <ul class="day-entries">
+                    {{ range .Visible }}
+                    <li class="entry{{ if .Spans }} spans{{ end }} cal-{{ .CalendarColor }}" title="{{ .Summary }} · {{ .When }}{{ if .Calendar }} · {{ .Calendar }}{{ end }}">{{ if not .Spans }}<span class="entry-time">{{ .Start.Format "15:04" }}</span> {{ end }}{{ .Summary }}</li>
+                    {{ end }}
+                    {{ if .More }}<li class="entry-more"><a href="#d-{{ .Key }}">+{{ .More }} more</a></li>{{ end }}
+                </ul>
+                <span class="day-dots" aria-hidden="true">{{ range .Entries }}<i class="cal-{{ .CalendarColor }}"></i>{{ end }}</span>
+                {{ end }}
+            </td>
+            {{ end }}
+        </tr>
+        {{ end }}
+        </tbody>
+    </table>
+
+    {{ if .Days }}
+    <div class="card month-list">
+        <table class="list agenda">
+            <tbody>
+            {{ range .Days }}
+            {{ $past := .Past }}
+            <tr class="group" id="d-{{ .Key }}"><th colspan="2" scope="colgroup">{{ .Label }}</th></tr>
+            {{ range .Entries }}
+            <tr{{ if $past }} class="past"{{ end }}>
+                <td class="when sub">{{ .When }}</td>
+                <td>
+                    <div class="title">{{ .Summary }}</div>
+                    {{ if or .Calendar .Location }}
+                    <div class="sub">
+                        {{ if .Calendar }}<span class="cal cal-{{ .CalendarColor }}">{{ .Calendar }}</span>{{ end }}
+                        {{ if .Location }}{{ if .Calendar }} · {{ end }}{{ .Location }}{{ end }}
+                    </div>
+                    {{ end }}
+                </td>
+            </tr>
+            {{ end }}
+            {{ end }}
+            </tbody>
+        </table>
+    </div>
+    {{ else }}
+    <p class="empty month-empty">Nothing planned in {{ .Title }}.</p>
+    {{ end }}
+</div>

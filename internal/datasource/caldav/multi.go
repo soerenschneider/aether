@@ -50,6 +50,15 @@ func NewMultiClient(calendars ...NamedCalendar) (*MultiClient, error) {
 	return &MultiClient{calendars: calendars}, nil
 }
 
+// Calendars returns the names of the calendars, in the order of their colors.
+func (m *MultiClient) Calendars() []string {
+	names := make([]string, 0, len(m.calendars))
+	for _, calendar := range m.calendars {
+		names = append(names, calendar.Name)
+	}
+	return names
+}
+
 func (m *MultiClient) FetchData(ctx context.Context) ([]Entry, error) {
 	results := make([][]Entry, len(m.calendars))
 	errs := make([]error, len(m.calendars))

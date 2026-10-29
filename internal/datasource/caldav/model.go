@@ -14,6 +14,8 @@ type CaldavData struct {
 	Entries []Entry
 	// names of the calendars that could not be fetched
 	Failed []string
+	// link to the month view, empty if there is none
+	MonthLink string
 
 	HtmlId string
 	From   time.Time

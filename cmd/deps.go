@@ -290,7 +290,11 @@ func buildCalDav(conf *config.CalDavConfig) (*caldav.CaldavDatasource, error) {
 	if err != nil {
 		return nil, err
 	}
-	return caldav.New(client, templateData)
+	monthTemplate, err := templates.GetTemplate("calendar/month.html")
+	if err != nil {
+		return nil, err
+	}
+	return caldav.New(client, templateData, caldav.WithMonthTemplate(monthTemplate))
 }
 
 func buildCalDavClient(conf config.CalDavCalendarConfig) (*caldav.Client, error) {
