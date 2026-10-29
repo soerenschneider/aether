@@ -1,15 +1,34 @@
-<h2 id="alertmanager" class="collapsible">Alerts</h2>
-<table>
+{{ define "tile" }}
+<div class="tile-label">Alerts</div>
+{{ if . }}
+{{ $top := index . 0 }}
+<div class="tile-value {{ if eq $top.Severity "critical" }}tone-bad{{ else if eq $top.Severity "warning" }}tone-warn{{ end }}">{{ len . }} active</div>
+<div class="tile-sub">{{ $top.Name }}</div>
+{{ else }}
+<div class="tile-value tone-ok">All clear</div>
+<div class="tile-sub">No active alerts</div>
+{{ end }}
+{{ end }}
+
+<header class="card-head">
+    <h2>Alerts</h2>
+    {{ if . }}<span class="count">{{ len . }}</span>{{ end }}
+</header>
+{{ if . }}
+<table class="list">
+    <tbody>
+    {{ range . }}
     <tr>
-        <th scope="col">Name</th>
-        <th scope="col">Severity</th>
-        <th scope="col">Count</th>
+        <td class="lead"><span class="dot {{ .Severity }}"></span></td>
+        <td>
+            <div class="title">{{ .Name }}</div>
+            <div class="sub">{{ .Severity }}</div>
+        </td>
+        <td class="end sub">{{ if gt .Count 1 }}×{{ .Count }}{{ end }}</td>
     </tr>
-    {{range .}}
-    <tr>
-        <td>{{.Name}}</td>
-        <td>{{.Severity}}</td>
-        <td>{{.Count}}</td>
-    </tr>
-    {{end}}
+    {{ end }}
+    </tbody>
 </table>
+{{ else }}
+<p class="empty">No active alerts.</p>
+{{ end }}

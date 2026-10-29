@@ -11,6 +11,17 @@ type TaskTemplateData struct {
 	Tasks []Task
 }
 
+// DueSoon counts the tasks that are overdue or due within the next 24 hours.
+func (d TaskTemplateData) DueSoon() int {
+	count := 0
+	for _, task := range d.Tasks {
+		if !task.Due.IsZero() && time.Until(task.Due) <= 24*time.Hour {
+			count++
+		}
+	}
+	return count
+}
+
 type Task struct {
 	Id          int32
 	Description string

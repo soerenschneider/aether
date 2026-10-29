@@ -1,45 +1,49 @@
-{{if .Entries }}
-<h2 id="{{ .HtmlId }}" class="collapsible">Agenda {{ .From.Format "02.01.06" }} – {{ .To.Format "02.01.06" }}</h2>
-<table>
-    <tr>
-        <th scope="col" style="width:70%;">Summary</th>
-        <th scope="col" style="width:30%;">Date</th>
-    </tr>
+{{ define "tile" }}
+<div class="tile-label">Next up</div>
+{{ with .Next }}
+<div class="tile-value">{{ .Summary }}</div>
+<div class="tile-sub">{{ index .Formatted 0 }}{{ if eq (len .Formatted) 2 }} · {{ index .Formatted 1 }}{{ end }}{{ if .Location }} · {{ fixLocation .Location }}{{ end }}</div>
+{{ else }}
+<div class="tile-value">Nothing planned</div>
+<div class="tile-sub">Your calendar is empty</div>
+{{ end }}
+{{ end }}
 
+<header class="card-head">
+    <h2>Agenda</h2>
+    {{ if .Entries }}<span class="count">{{ len .Entries }}</span>{{ end }}
+    <span class="meta">until {{ .To.Format "02.01." }}</span>
+</header>
+{{ if .Entries }}
+<table class="list">
+    <tbody>
     {{ $prevCategory := "" }}
     {{ range .Entries }}
     {{ $category := "Later" }}
-
     {{ if lt .Start.Unix $.ThisWeekEnd.Unix }}
-    {{ $category = "This Week" }}
+    {{ $category = "This week" }}
     {{ else if lt .Start.Unix $.NextWeekEnd.Unix }}
-    {{ $category = "Next Week" }}
+    {{ $category = "Next week" }}
     {{ else if lt .Start.Unix $.NextNextWeekEnd.Unix }}
-    {{ $category = "Two Weeks" }}
+    {{ $category = "In two weeks" }}
     {{ end }}
-
-    <!-- Insert category row if it's a new section -->
     {{ if ne $category $prevCategory }}
-    <tr class="category-header">
-        <td colspan="2"><strong>{{ $category }}</strong></td>
-    </tr>
+    <tr class="group"><th colspan="2" scope="colgroup">{{ $category }}</th></tr>
     {{ end }}
-
     <tr>
-        <td>
-            {{ .Summary }}
-            {{ if .Location }}<br/>
-            <span class="location">{{ if .LocationUrl }}<a href="{{ .LocationUrl }}" target="_blank">{{ fixLocation .Location }}</a>{{ else }}{{ fixLocation .Location }}{{ end }}</span>
-            {{ end }}
+        <td class="when">
+            <div class="title">{{ index .Formatted 0 }}</div>
+            <div class="sub">{{ if eq (len .Formatted) 2 }}{{ index .Formatted 1 }}{{ else }}All day{{ end }}</div>
         </td>
         <td>
-            <span class="date">{{ index .Formatted 0 }}</span>
-            {{ if eq (len .Formatted) 2}}<span class="time">{{ index .Formatted 1 }}</span>
-            {{ end }}
+            <div class="title">{{ .Summary }}</div>
+            {{ if .Location }}<div class="sub">{{ if .LocationUrl }}<a href="{{ .LocationUrl }}" target="_blank" rel="noopener">{{ fixLocation .Location }}</a>{{ else }}{{ fixLocation .Location }}{{ end }}</div>{{ end }}
         </td>
     </tr>
-
     {{ $prevCategory = $category }}
     {{ end }}
+    </tbody>
 </table>
-{{end }}
+{{ else }}
+<p class="empty">Nothing planned.</p>
+{{ end }}

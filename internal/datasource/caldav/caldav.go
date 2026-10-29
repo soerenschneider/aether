@@ -120,10 +120,16 @@ func (c *CaldavDatasource) GetData(ctx context.Context) (*internal.Data, error) 
 		summary = getSummary(data.Entries, time.Now(), true)
 	}
 
+	tile, tileErr := internal.RenderTile(c.defaultTemplate, data)
+	if tileErr != nil {
+		return nil, fmt.Errorf("could not render tile for datasource %q: %w", c.Name(), tileErr)
+	}
+
 	return &internal.Data{
 		Summary:                    summary,
 		RenderedDefaultTemplate:    regularTemplateData.Bytes(),
 		RenderedSimplifiedTemplate: simpleTemplateData.Bytes(),
+		RenderedTile:               tile,
 	}, nil
 }
 

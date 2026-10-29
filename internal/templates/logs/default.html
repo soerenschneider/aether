@@ -1,13 +1,26 @@
-<h2 id="victoriametrics" class="collapsible">Logs</h2>
-<table>
-    <tr>
-        <th scope="col">Time</th>
-        <th scope="col">Message</th>
-    </tr>
+{{ define "tile" }}
+{{ if . }}
+<div class="tile-label">Logs</div>
+<div class="tile-value tone-warn">{{ len . }} entries</div>
+<div class="tile-sub">{{ (index . 0).Message }}</div>
+{{ end }}
+{{ end }}
+
+<header class="card-head">
+    <h2>Logs</h2>
+    {{ if . }}<span class="count">{{ len . }}</span>{{ end }}
+</header>
+{{ if . }}
+<table class="list logs">
+    <tbody>
     {{ range . }}
     <tr>
-        <td>{{ .Timestamp }}</td>
-        <td>{{ .Message }}</td>
+        <td class="when mono sub">{{ clock .Timestamp }}</td>
+        <td class="mono">{{ .Message }}</td>
     </tr>
-    {{end}}
+    {{ end }}
+    </tbody>
 </table>
+{{ else }}
+<p class="empty">No matching log entries.</p>
+{{ end }}

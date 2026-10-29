@@ -9,6 +9,7 @@ import (
 
 	"github.com/soerenschneider/aether/internal"
 	"github.com/soerenschneider/aether/internal/config"
+	"github.com/soerenschneider/aether/internal/static"
 	"jaytaylor.com/html2text"
 
 	"github.com/rs/zerolog/log"
@@ -39,8 +40,8 @@ func (h *HttpServer) handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Cache-Control", "public, max-age=120") // 3600 seconds = 60 minutes
-	w.Header().Set("Expires", time.Now().Add(2*time.Minute).Format(http.TimeFormat))
+	// the page polls itself via htmx, so it must never be served from the browser cache
+	w.Header().Set("Cache-Control", "no-cache")
 	_, _ = w.Write(data.RenderedDefaultTemplate)
 }
 
@@ -76,6 +77,7 @@ func (h *HttpServer) Run(ctx context.Context, wg *sync.WaitGroup) error {
 	defer wg.Done()
 
 	mux := http.NewServeMux()
+	mux.Handle("/static/", static.Handler("/static/"))
 	if h.httpConfig.UseGzip {
 		mux.HandleFunc(h.httpConfig.ServePath, makeGzipHandler(h.handler, h.httpConfig.GzipCompressionLevel))
 		mux.HandleFunc("/text", makeGzipHandler(h.text, h.httpConfig.GzipCompressionLevel))

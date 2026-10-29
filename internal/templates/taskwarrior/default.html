@@ -1,23 +1,35 @@
+{{ define "tile" }}
+<div class="tile-label">Tasks</div>
 {{ if .Tasks }}
-<h2 id="taskwarrior" class="collapsible">Taskwarrior</h2>
-<table>
+{{ $due := .DueSoon }}
+<div class="tile-value{{ if $due }} tone-bad{{ end }}">{{ if $due }}{{ $due }} due{{ else }}{{ len .Tasks }} open{{ end }}</div>
+<div class="tile-sub">{{ (index .Tasks 0).Description }}</div>
+{{ else }}
+<div class="tile-value tone-ok">All done</div>
+<div class="tile-sub">No pending tasks</div>
+{{ end }}
+{{ end }}
+
+<header class="card-head">
+    <h2>Tasks</h2>
+    {{ if .Tasks }}<span class="count">{{ len .Tasks }}</span>{{ end }}
+    <span class="meta">by urgency</span>
+</header>
+{{ if .Tasks }}
+<table class="list">
+    <tbody>
+    {{ range .Tasks }}
     <tr>
-        <th scope="col">Id</th>
-        <th scope="col">Name</th>
-        <th scope="col">Due</th>
-        <th scope="col">Project</th>
-        <th scope="col">Tags</th>
-        <th scope="col">Urgency</th>
+        <td class="lead"><span class="dot {{ getCssClass .Due }}"></span></td>
+        <td>
+            <div class="title">{{ .Description }}</div>
+            {{ if or .Project .Tags }}<div class="sub">{{ if .Project }}{{ formatProject .Project }}{{ end }}{{ range .Tags }} <span class="tag">#{{ . }}</span>{{ end }}</div>{{ end }}
+        </td>
+        <td class="end sub {{ getCssClass .Due }}">{{ formatDue .Due }}</td>
     </tr>
-    {{range .Tasks}}
-    <tr>
-        <td>{{ .Id }}</td>
-        <td>{{ .Description }}</td>
-        <td class="{{ getCssClass .Due }}">{{ formatDue .Due }}</td>
-        <td>{{ formatProject .Project }}</td>
-        <td>{{ formatTags .Tags }}</td>
-        <td>{{ printf "%.1f" .Urgency }}</td>
-    </tr>
-    {{end}}
+    {{ end }}
+    </tbody>
 </table>
+{{ else }}
+<p class="empty">No pending tasks.</p>
 {{ end }}

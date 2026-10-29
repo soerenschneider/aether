@@ -55,14 +55,18 @@ func New(endpoint string, templateData templates.TemplateData, opts ...Opt) (*Vi
 		}
 	}
 
+	funcMap := template.FuncMap{
+		"clock": formatClock,
+	}
+
 	var err error
-	ds.regularTemplate, err = template.New("logs-regular").Parse(string(templateData.DefaultTemplate))
+	ds.regularTemplate, err = template.New("logs-regular").Funcs(funcMap).Parse(string(templateData.DefaultTemplate))
 	if err != nil {
 		return nil, err
 	}
 
 	if len(templateData.SimpleTemplate) > 0 {
-		ds.simpleTemplate, err = template.New("logs-simple").Parse(string(templateData.SimpleTemplate))
+		ds.simpleTemplate, err = template.New("logs-simple").Funcs(funcMap).Parse(string(templateData.SimpleTemplate))
 		if err != nil {
 			return nil, err
 		}
@@ -102,10 +106,16 @@ func (c *VictorialogsClient) GetData(ctx context.Context) (*internal.Data, error
 		summary = getSummary(logs)
 	}
 
+	tile, tileErr := internal.RenderTile(c.regularTemplate, logs)
+	if tileErr != nil {
+		return nil, fmt.Errorf("could not render tile for datasource %q: %w", c.Name(), tileErr)
+	}
+
 	return &internal.Data{
 		Summary:                    summary,
 		RenderedDefaultTemplate:    regularTemplateData.Bytes(),
 		RenderedSimplifiedTemplate: simpleTemplateData.Bytes(),
+		RenderedTile:               tile,
 	}, nil
 }
 

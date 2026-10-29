@@ -1,49 +1,90 @@
-<h2 id="{{ .HtmlId }}" class="collapsible">Weather {{.City.Name }} <small>☀️{{ .City.SunriseTime.Format "15:04" }} 🌚{{ .City.SunsetTime.Format "15:04" }}</small></h2>
-<a href="https://openweathermap.org/city/{{ .City.ID }}" target=”_blank” style="text-decoration: none;">
-    <table>
-        <thead>
-        <tr>
-            <th scope="col">Time</th>
-            <th scope="col">Temp (°C)</th>
-            <th scope="col">Pop (%)</th>
-            <th scope="col">Rain (mm)</th>
-            <th scope="col">Hum (%)</th>
-            <th scope="col">Wind (m/s)</th>
-            <th scope="col">Clouds (%)</th>
-            <th scope="col">Vis. (%)</th>
-        </tr>
-        </thead>
-        <tbody>
-        {{ $prevDate := "" }}
-        {{ range $i, $val := .List }}
-        {{ $currDate := .Time.Format "2006-01-02" }}
+{{ define "tile" }}
+{{ with .Current }}
+<div class="tile-label">{{ $.City.Name }}</div>
+<div class="tile-value">{{ printf "%.0f" .Main.Temp }}° {{ .WeatherEmoji }}</div>
+<div class="tile-sub">{{ $.RainOutlook }}{{ with $.Days }}{{ with index . 0 }} · {{ printf "%.0f" .Min }}° / {{ printf "%.0f" .Max }}°{{ end }}{{ end }}</div>
+{{ end }}
+{{ end }}
 
-        <!-- Insert a separator row when the date changes -->
-        {{ if ne $currDate $prevDate }}
-        <tr class="day-separator">
-            <td colspan="8" class="day-header">
-                {{ if eq $currDate $.Now }} Today
-                {{ else if eq $currDate $.Tomorrow }} Tomorrow
-                {{ else }} {{ .Time | weekday }}
-                {{ end }}
-            </td>
-        </tr>
-        {{ end }}
+<header class="card-head span-all">
+    <h2>Weather <span>{{ .City.Name }}</span></h2>
+    <span class="meta">Sunrise {{ .City.SunriseTime.Format "15:04" }} · Sunset {{ .City.SunsetTime.Format "15:04" }}</span>
+</header>
 
-        <tr class="{{ if eq $currDate $.Now }}today-row{{ else if eq $currDate $.Tomorrow }}tomorrow-row{{ else }}future-row{{ end }}">
-            <td>{{ .Time.Format "15:00" }} {{ .WeatherEmoji }}<br/>{{ .WeatherDescription }}</td>
-            <td class="{{ getClassForTemp .Main.FeelsLike }}">{{ printf "%.0f" .Main.Temp }} ({{ printf "%.0f" .Main.FeelsLike }})</td>
-            <td class="{{ getClassForPop .Pop }}">{{ .Pop }}</td>
-            <td class="{{ getClassForRain .Rain.H3 }}">{{ .Rain.H3 }}</td>
-            <td class="{{ getClassForHumidity .Main.Humidity }}">{{ .Main.Humidity }}</td>
-            <td class="{{ getClassForWind .Wind.Speed }}">{{ printf "%.0f" .Wind.Speed }}{{ if gt .Wind.Speed 0.0 }} {{ .Wind.DirectionEmoji }}{{ end }}</td>
-            <td class="{{ getClassForClouds .Clouds.All }}">{{ .Clouds.All }}</td>
-            <td class="{{ getClassForVisibility .VisibilityPercent }}">{{ .VisibilityPercent }}</td>
-        </tr>
+<div class="forecast">
+    <div>
+        <table class="hours" aria-label="Next 24 hours">
+            <tbody>
+            <tr>{{ range .Hourly }}<td class="h-time">{{ .Time.Format "15:04" }}</td>{{ end }}</tr>
+            <tr>{{ range .Hourly }}<td class="h-icon" title="{{ .WeatherDescription }}">{{ .WeatherEmoji }}</td>{{ end }}</tr>
+            <tr>{{ range .Hourly }}<td class="h-temp">{{ printf "%.0f" .Main.Temp }}°</td>{{ end }}</tr>
+            <tr>{{ range .Hourly }}<td><span class="pop" title="{{ percent .Pop }}% chance of rain"><span style="height: {{ percent .Pop }}%"></span></span></td>{{ end }}</tr>
+            <tr>{{ range .Hourly }}<td class="h-pop">{{ if ge .Pop 0.1 }}{{ percent .Pop }}%{{ end }}</td>{{ end }}</tr>
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <table class="days" aria-label="Next days">
+            <tbody>
+            {{ range .Days }}
+            <tr>
+                <td class="d-label">{{ .Label }}</td>
+                <td class="d-icon" title="{{ .Description }}">{{ .Emoji }}</td>
+                <td class="d-min">{{ printf "%.0f" .Min }}°</td>
+                <td><div class="range"><span style="left: {{ .BarLeft }}%; width: {{ .BarWidth }}%"></span></div></td>
+                <td class="d-max">{{ printf "%.0f" .Max }}°</td>
+                <td class="d-rain">{{ if ge .Rain 0.1 }}{{ printf "%.1f" .Rain }} mm{{ end }}</td>
+            </tr>
+            {{ end }}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-        {{ $prevDate = $currDate }}
-        {{ end }}
-        </tbody>
+<details class="more">
+    <summary>All details</summary>
+    <div class="scroll">
+        <table class="details">
+            <thead>
+            <tr>
+                <th scope="col">Time</th>
+                <th scope="col">Conditions</th>
+                <th scope="col">Temp °C</th>
+                <th scope="col">Rain chance</th>
+                <th scope="col">Rain mm</th>
+                <th scope="col">Humidity</th>
+                <th scope="col">Wind m/s</th>
+                <th scope="col">Clouds</th>
+                <th scope="col">Visibility</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{ $prevDate := "" }}
+            {{ range .List }}
+            {{ $currDate := .Time.Format "2006-01-02" }}
+            {{ if ne $currDate $prevDate }}
+            <tr class="group">
+                <th colspan="9" scope="colgroup">{{ if eq $currDate $.Now }}Today{{ else if eq $currDate $.Tomorrow }}Tomorrow{{ else }}{{ .Time | weekday }}{{ end }} {{ .Time.Format "02.01." }}</th>
+            </tr>
+            {{ end }}
+            <tr>
+                <td>{{ .Time.Format "15:04" }}</td>
+                <td>{{ .WeatherEmoji }} {{ .WeatherDescription }}</td>
+                <td class="{{ getClassForTemp .Main.FeelsLike }}">{{ printf "%.0f" .Main.Temp }}° <span class="nil">{{ printf "%.0f" .Main.FeelsLike }}°</span></td>
+                <td class="{{ getClassForPop .Pop }}">{{ if gt .Pop 0.0 }}{{ percent .Pop }}%{{ else }}<span class="nil">–</span>{{ end }}</td>
+                <td class="{{ getClassForRain .Rain.H3 }}">{{ if gt .Rain.H3 0.0 }}{{ printf "%.1f" .Rain.H3 }}{{ else }}<span class="nil">–</span>{{ end }}</td>
+                <td class="{{ getClassForHumidity .Main.Humidity }}">{{ .Main.Humidity }}%</td>
+                <td class="{{ getClassForWind .Wind.Speed }}">{{ printf "%.0f" .Wind.Speed }}{{ if gt .Wind.Speed 0.0 }} {{ .Wind.Direction }}{{ end }}</td>
+                <td class="{{ getClassForClouds .Clouds.All }}">{{ .Clouds.All }}%</td>
+                <td class="{{ getClassForVisibility .VisibilityPercent }}">{{ .VisibilityPercent }}%</td>
+            </tr>
+            {{ $prevDate = $currDate }}
+            {{ end }}
+            </tbody>
+        </table>
+    </div>
+</details>
 
-    </table>
-</a>
+<div class="card-foot">
+    <a href="https://openweathermap.org/city/{{ .City.ID }}" target="_blank" rel="noopener">Forecast by OpenWeatherMap ↗</a>
+</div>

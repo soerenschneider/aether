@@ -47,13 +47,21 @@ type summaryFragment struct {
 
 type aetherTemplateInput struct {
 	Summary template.HTML
-	Data    template.HTML
+	// compact summaries of the datasources, replace the summary if set
+	Tiles     template.HTML
+	Data      template.HTML
+	UpdatedAt time.Time
+	// names of the datasources that could not be fetched
+	Failed []string
 }
 
 type dataPieces struct {
 	RegularHtmlPieces [][]byte
 	SimpleHtmlPieces  [][]byte
 	SummaryPieces     []summaryFragment
+	TilePieces        [][]byte
+	Names             []string
+	Failed            []string
 }
 
 func NewApp(deps deps, templateData templates.TemplateData, conf *config.Config) (*App, error) {
@@ -73,12 +81,6 @@ func NewApp(deps deps, templateData templates.TemplateData, conf *config.Config)
 
 	summaryTempl, err := template.New("summary").Funcs(template.FuncMap{
 		"nameToId": pkg.NameToId,
-		"add": func(i, j int) int {
-			return i + j
-		},
-		"isEven": func(i int) bool {
-			return i%2 == 0
-		},
 	}).Parse(string(templateData.SimpleTemplate))
 	if err != nil {
 		return nil, err
@@ -160,6 +162,9 @@ func (a *App) fetchData(ctx context.Context) (dataPieces, error) {
 	regularHtmlPieces := make([][]byte, len(a.deps.datasources))
 	simplifiedHtmlPieces := make([][]byte, len(a.deps.datasources))
 	summaryPieces := make([]summaryFragment, len(a.deps.datasources))
+	tilePieces := make([][]byte, len(a.deps.datasources))
+	names := make([]string, len(a.deps.datasources))
+	failed := make([]bool, len(a.deps.datasources))
 
 	ctx, cancel := context.WithTimeout(ctx, time.Second*60)
 
@@ -168,10 +173,12 @@ func (a *App) fetchData(ctx context.Context) (dataPieces, error) {
 	defer cancel()
 	start := time.Now()
 	for index, ds := range a.deps.datasources {
+		names[index] = ds.Name()
 		f := func(ctx context.Context) error {
 			start := time.Now()
 			data, err := ds.GetData(ctx)
 			if err != nil {
+				failed[index] = true
 				return err
 			}
 			regularHtmlPieces[index] = data.RenderedDefaultTemplate
@@ -184,6 +191,7 @@ func (a *App) fetchData(ctx context.Context) (dataPieces, error) {
 				Data: data.Summary,
 				Name: ds.Name(),
 			}
+			tilePieces[index] = data.RenderedTile
 
 			log.Debug().Msgf("Finished datasource %d (%s) after %v", index, ds.Name(), time.Since(start))
 			return nil
@@ -191,27 +199,56 @@ func (a *App) fetchData(ctx context.Context) (dataPieces, error) {
 		p.Go(f)
 	}
 
+	err := p.Wait()
 	log.Debug().Msgf("Updated %d datasources in %v", len(a.deps.datasources), time.Since(start))
-	if err := p.Wait(); err != nil {
+	if err != nil {
 		log.Error().Err(err).Msg("could not render all templates")
-		return dataPieces{
-			RegularHtmlPieces: regularHtmlPieces,
-			SimpleHtmlPieces:  simplifiedHtmlPieces,
-			SummaryPieces:     summaryPieces,
-		}, nil
+	}
+
+	var failedNames []string
+	for index, hasFailed := range failed {
+		if hasFailed {
+			failedNames = append(failedNames, names[index])
+		}
 	}
 
 	return dataPieces{
 		RegularHtmlPieces: regularHtmlPieces,
 		SimpleHtmlPieces:  simplifiedHtmlPieces,
 		SummaryPieces:     summaryPieces,
+		TilePieces:        tilePieces,
+		Names:             names,
+		Failed:            failedNames,
 	}, nil
 }
 
-func (a *App) stitchPieces(pieces [][]byte) ([]byte, error) {
+// stitchTiles links every non-empty tile to the card of its datasource
+func (a *App) stitchTiles(tiles [][]byte, names []string) []byte {
+	htmlData := bytes.NewBuffer(nil)
+	for i := 0; i < len(tiles); i++ {
+		if len(bytes.TrimSpace(tiles[i])) == 0 {
+			continue
+		}
+		id := template.HTMLEscapeString(pkg.NameToId(names[i]))
+		_, _ = fmt.Fprintf(htmlData, `<a class="tile" href="#%s">`, id)
+		_, _ = htmlData.Write(tiles[i])
+		_, _ = htmlData.WriteString("</a>")
+	}
+
+	return htmlData.Bytes()
+}
+
+// stitchPieces wraps every non-empty piece in its own card, using the datasource name as anchor
+func (a *App) stitchPieces(pieces [][]byte, names []string) ([]byte, error) {
 	htmlData := bytes.NewBuffer(nil)
 	for i := 0; i < len(pieces); i++ {
+		if len(bytes.TrimSpace(pieces[i])) == 0 {
+			continue
+		}
+		id := template.HTMLEscapeString(pkg.NameToId(names[i]))
+		_, _ = fmt.Fprintf(htmlData, `<section class="card" id="%s">`, id)
 		_, _ = htmlData.Write(pieces[i])
+		_, _ = htmlData.WriteString("</section>")
 	}
 
 	return htmlData.Bytes(), nil
@@ -228,28 +265,35 @@ func (a *App) getRenderedData(ctx context.Context) (*internal.Data, error) {
 		return nil, err
 	}
 
-	regularHtmlData, err := a.stitchPieces(data.RegularHtmlPieces)
+	updatedAt := time.Now()
+
+	regularHtmlData, err := a.stitchPieces(data.RegularHtmlPieces, data.Names)
 	if err != nil {
 		return nil, err
 	}
 
 	regularHtmlDoc := bytes.NewBuffer(nil)
 	if err := a.aetherTemplate.Execute(regularHtmlDoc, aetherTemplateInput{
-		Summary: template.HTML(summaryHtmlData.String()),
-		Data:    template.HTML(regularHtmlData),
+		Summary:   template.HTML(summaryHtmlData.String()),
+		Tiles:     template.HTML(a.stitchTiles(data.TilePieces, data.Names)),
+		Data:      template.HTML(regularHtmlData),
+		UpdatedAt: updatedAt,
+		Failed:    data.Failed,
 	}); err != nil {
 		return nil, err
 	}
 
-	simplifiedHtmlData, err := a.stitchPieces(data.SimpleHtmlPieces)
+	simplifiedHtmlData, err := a.stitchPieces(data.SimpleHtmlPieces, data.Names)
 	if err != nil {
 		return nil, err
 	}
 
 	simpleHtmlDoc := bytes.NewBuffer(nil)
 	if err := a.aetherTemplate.Execute(simpleHtmlDoc, aetherTemplateInput{
-		Summary: template.HTML(summaryHtmlData.String()),
-		Data:    template.HTML(simplifiedHtmlData),
+		Summary:   template.HTML(summaryHtmlData.String()),
+		Data:      template.HTML(simplifiedHtmlData),
+		UpdatedAt: updatedAt,
+		Failed:    data.Failed,
 	}); err != nil {
 		return nil, err
 	}
