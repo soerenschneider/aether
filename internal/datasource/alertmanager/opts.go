@@ -5,7 +5,20 @@ import (
 	"html/template"
 	"os"
 	"strings"
+
+	"github.com/prometheus/alertmanager/api/v2/client/alert"
 )
+
+// WithClient replaces the alertmanager API client, e.g. with a fake for development.
+func WithClient(client alert.ClientService) Opt {
+	return func(ds *AlertmanagerDatasource) error {
+		if client == nil {
+			return errors.New("nil client passed")
+		}
+		ds.client = client
+		return nil
+	}
+}
 
 func WithBasePath(path string) Opt {
 	return func(ds *AlertmanagerDatasource) error {

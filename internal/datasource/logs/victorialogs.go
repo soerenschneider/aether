@@ -25,10 +25,15 @@ const (
 
 type Opt func(datasource *VictorialogsClient) error
 
+type Querier interface {
+	QueryVictorialogs(ctx context.Context, args VictorialogsQuery) ([]LogEntry, error)
+}
+
 type VictorialogsClient struct {
 	endpoint string
 	limit    int
 	query    string
+	querier  Querier
 
 	regularTemplate    *template.Template
 	simpleTemplate     *template.Template
@@ -47,6 +52,7 @@ func New(endpoint string, templateData templates.TemplateData, opts ...Opt) (*Vi
 		query:      defaultQuery,
 		limit:      defaultLimit,
 	}
+	ds.querier = ds
 
 	var errs error
 	for _, opt := range opts {
@@ -86,19 +92,19 @@ func (c *VictorialogsClient) GetData(ctx context.Context) (*internal.Data, error
 		Limit:   c.limit,
 	}
 
-	logs, err := c.QueryVictorialogs(ctx, queryReq)
+	logs, err := c.querier.QueryVictorialogs(ctx, queryReq)
 	if err != nil {
 		return nil, err
 	}
 
 	var regularTemplateData bytes.Buffer
 	if err := c.regularTemplate.Execute(&regularTemplateData, logs); err != nil {
-		return nil, fmt.Errorf("could not render 'regular' template for datasource %q: %w", c.Name(), internal.ErrTemplate)
+		return nil, fmt.Errorf("could not render 'regular' template for datasource %q: %w: %w", c.Name(), internal.ErrTemplate, err)
 	}
 
 	var simpleTemplateData bytes.Buffer
 	if err := c.simpleTemplate.Execute(&simpleTemplateData, logs); err != nil {
-		return nil, fmt.Errorf("could not render 'simple' template for datasource %q: %w", c.Name(), internal.ErrTemplate)
+		return nil, fmt.Errorf("could not render 'simple' template for datasource %q: %w: %w", c.Name(), internal.ErrTemplate, err)
 	}
 
 	var summary []string

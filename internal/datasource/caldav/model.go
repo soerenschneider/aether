@@ -58,8 +58,7 @@ func toEntry(event *ical.Component) Entry {
 	prop = event.Props.Get("LOCATION")
 	if prop != nil {
 		entry.Location = prop.Value
-		query := url.QueryEscape(entry.Location)
-		entry.LocationUrl = fmt.Sprintf("https://google.com/maps/?q=%s", query)
+		entry.LocationUrl = buildLocationUrl(entry.Location)
 	}
 
 	if !entry.Start.IsZero() && !entry.End.IsZero() {
@@ -80,6 +79,25 @@ func (d CaldavData) Next() *Entry {
 		}
 	}
 	return nil
+}
+
+// NewEntry builds an entry from already parsed values, e.g. for fake data during development.
+func NewEntry(summary, location string, start, end time.Time) Entry {
+	entry := Entry{
+		Summary:   summary,
+		Start:     start,
+		End:       end,
+		Location:  location,
+		Formatted: getFormattedDate(start, end),
+	}
+	if location != "" {
+		entry.LocationUrl = buildLocationUrl(location)
+	}
+	return entry
+}
+
+func buildLocationUrl(location string) string {
+	return fmt.Sprintf("https://google.com/maps/?q=%s", url.QueryEscape(location))
 }
 
 func getFormattedDate(start, end time.Time) []string {

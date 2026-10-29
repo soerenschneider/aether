@@ -107,12 +107,12 @@ func (c *CaldavDatasource) GetData(ctx context.Context) (*internal.Data, error) 
 
 	var regularTemplateData bytes.Buffer
 	if err := c.defaultTemplate.Execute(&regularTemplateData, data); err != nil {
-		return nil, fmt.Errorf("could not render 'regular' template: %w", internal.ErrTemplate)
+		return nil, fmt.Errorf("could not render 'regular' template: %w: %w", internal.ErrTemplate, err)
 	}
 
 	var simpleTemplateData bytes.Buffer
 	if err := c.simpleTemplate.Execute(&simpleTemplateData, data); err != nil {
-		return nil, fmt.Errorf("could not render 'simple' template: %w", internal.ErrTemplate)
+		return nil, fmt.Errorf("could not render 'simple' template: %w: %w", internal.ErrTemplate, err)
 	}
 
 	var summary []string

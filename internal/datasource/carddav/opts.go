@@ -8,6 +8,17 @@ import (
 	"os"
 )
 
+// WithClient replaces the carddav client, e.g. with a fake for development.
+func WithClient(client DavClient) Opt {
+	return func(ds *CarddavDatasource) error {
+		if client == nil {
+			return errors.New("nil client passed")
+		}
+		ds.davClient = client
+		return nil
+	}
+}
+
 func WithTemplateFile(file string) Opt {
 	return func(ds *CarddavDatasource) error {
 		data, err := os.ReadFile(file)

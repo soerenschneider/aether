@@ -24,13 +24,20 @@ const defaultLookaheadDays = 7 * 2
 
 type Opt func(datasource *CarddavDatasource) error
 
+// DavClient is the subset of *carddav.Client that is used to fetch contacts
+type DavClient interface {
+	FindAddressBookHomeSet(ctx context.Context, principal string) (string, error)
+	FindAddressBooks(ctx context.Context, addressBookHomeSet string) ([]carddav.AddressBook, error)
+	QueryAddressBook(ctx context.Context, addressBook string, query *carddav.AddressBookQuery) ([]carddav.AddressObject, error)
+}
+
 type CarddavDatasource struct {
 	endpoint      string
 	username      string
 	password      string
 	lookaheadDays int
 
-	davClient          *carddav.Client
+	davClient          DavClient
 	regularTemplate    *template.Template
 	simpleTemplate     *template.Template
 	httpClient         *http.Client
@@ -55,20 +62,22 @@ func New(endpoint string, templateData templates.TemplateData, opts ...Opt) (*Ca
 		}
 	}
 
-	var client *carddav.Client
 	var err error
-	if len(ds.username) > 0 && len(ds.password) > 0 {
-		client, err = carddav.NewClient(webdav.HTTPClientWithBasicAuth(ds.httpClient, ds.username, ds.password), endpoint)
-	} else {
-		client, err = carddav.NewClient(ds.httpClient, ds.endpoint)
-	}
+	if ds.davClient == nil {
+		var client *carddav.Client
+		if len(ds.username) > 0 && len(ds.password) > 0 {
+			client, err = carddav.NewClient(webdav.HTTPClientWithBasicAuth(ds.httpClient, ds.username, ds.password), endpoint)
+		} else {
+			client, err = carddav.NewClient(ds.httpClient, ds.endpoint)
+		}
 
-	if err != nil {
-		errs = multierr.Append(errs, fmt.Errorf("creating client: %w", err))
-		return nil, errs
-	}
+		if err != nil {
+			errs = multierr.Append(errs, fmt.Errorf("creating client: %w", err))
+			return nil, errs
+		}
 
-	ds.davClient = client
+		ds.davClient = client
+	}
 
 	ds.regularTemplate, err = template.New("anniversaries-regular").Parse(string(templateData.DefaultTemplate))
 	if err != nil {

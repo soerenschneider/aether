@@ -58,18 +58,19 @@ func New(host string, templateData templates.TemplateData, opts ...Opt) (*Alertm
 		}
 	}
 
-	transportConf := client.DefaultTransportConfig().
-		WithHost(host).
-		WithSchemes([]string{ds.scheme}).
-		WithBasePath(ds.basePath)
+	if ds.client == nil {
+		transportConf := client.DefaultTransportConfig().
+			WithHost(host).
+			WithSchemes([]string{ds.scheme}).
+			WithBasePath(ds.basePath)
 
-	apiClient := client.NewHTTPClientWithConfig(
-		strf,
-		transportConf,
-	)
+		apiClient := client.NewHTTPClientWithConfig(
+			strf,
+			transportConf,
+		)
 
-	alertClient := alert.New(apiClient.Transport, strf)
-	ds.client = alertClient
+		ds.client = alert.New(apiClient.Transport, strf)
+	}
 
 	var err error
 	ds.defaultTemplate, err = template.New("alertmanager-default").Parse(string(templateData.DefaultTemplate))

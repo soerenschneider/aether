@@ -7,6 +7,17 @@ import (
 	"os"
 )
 
+// WithQuerier replaces the component that queries victorialogs, e.g. with a fake for development.
+func WithQuerier(querier Querier) Opt {
+	return func(ds *VictorialogsClient) error {
+		if querier == nil {
+			return errors.New("nil querier passed")
+		}
+		ds.querier = querier
+		return nil
+	}
+}
+
 func WithTemplateFile(file string) Opt {
 	return func(ds *VictorialogsClient) error {
 		data, err := os.ReadFile(file)

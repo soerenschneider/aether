@@ -36,6 +36,10 @@ version-info:
 	$(eval VERSION := $(shell git describe --tags --abbrev=0 || echo "dev"))
 	$(eval COMMIT_HASH := $(shell git rev-parse HEAD))
 
+# serves the dashboard with fake data at http://127.0.0.1:8080, templates are read from disk on every request
+dev:
+	go run -tags dev ./cmd
+
 fmt:
 	find . -iname "*.go" -exec go fmt {} \; 
 

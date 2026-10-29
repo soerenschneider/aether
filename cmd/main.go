@@ -28,6 +28,9 @@ const defaultConfigLocation = "/etc/aether.yaml"
 var (
 	flags = Flags{}
 	once  = sync.Once{}
+
+	// devMain replaces main when building with the "dev" tag, see dev.go
+	devMain func()
 )
 
 func parseFlags() error {
@@ -55,6 +58,11 @@ func dieOnError(err error, msg string) {
 }
 
 func main() {
+	if devMain != nil {
+		devMain()
+		return
+	}
+
 	if err := parseFlags(); err != nil {
 		dieOnError(err, "could not parse flags")
 	}
