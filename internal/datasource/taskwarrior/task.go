@@ -164,7 +164,7 @@ func formatTags(tags []string) string {
 }
 
 func formatProject(project string) string {
-	return strings.Replace(project, ".", " / ", -1)
+	return strings.ReplaceAll(project, ".", " / ")
 }
 
 func getCssClass(dueTime time.Time) string {

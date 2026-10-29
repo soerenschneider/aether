@@ -189,7 +189,7 @@ func (c *CaldavDatasource) filter(entries []Entry) []Entry {
 }
 
 func fixLocation(input string) string {
-	input = strings.Replace(input, "\\", "", -1)
+	input = strings.ReplaceAll(input, "\\", "")
 	if !strings.HasSuffix(input, ")") {
 		return input
 	}

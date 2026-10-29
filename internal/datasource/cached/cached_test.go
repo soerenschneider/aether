@@ -93,7 +93,7 @@ func TestCachedDatasource_incompleteData(t *testing.T) {
 		t.Fatalf("expected the complete data after the retry, got %v", data)
 	}
 	// the cache always refreshes at midnight, which may be closer than the retry interval
-	nearMidnight := calculateNextRefreshInterval(24*time.Hour, time.Now()).Sub(time.Now()) <= incompleteRetryInterval
+	nearMidnight := time.Until(calculateNextRefreshInterval(24*time.Hour, time.Now())) <= incompleteRetryInterval
 	if until := time.Until(cache.nextRefresh); until <= incompleteRetryInterval && !nearMidnight {
 		t.Errorf("expected complete data to be kept for the regular interval, but it's only kept for %v", until)
 	}
