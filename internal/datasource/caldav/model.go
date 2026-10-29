@@ -72,6 +72,16 @@ func toEntry(event *ical.Component) Entry {
 	return entry
 }
 
+// Next returns the first entry that has not ended yet.
+func (d CaldavData) Next() *Entry {
+	for i := range d.Entries {
+		if d.Entries[i].End.After(d.Now) {
+			return &d.Entries[i]
+		}
+	}
+	return nil
+}
+
 func getFormattedDate(start, end time.Time) []string {
 	now := time.Now()
 	isWholeDay := pkg.IsWholeDay(start, end)

@@ -1,23 +1,28 @@
-<h2 id="astral" class="collapsible">Photo</h2>
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Start</th>
-        <th>End</th>
+<header class="card-head">
+    <h2>Photo light</h2>
+    <span class="meta">{{ .Sunrise.Format "15:04" }} – {{ .Sunset.Format "15:04" }}</span>
+</header>
+<table class="list">
+    <tbody>
+    <tr class="group">
+        <th scope="col"></th>
+        <th scope="col">Morning</th>
+        <th scope="col">Evening</th>
     </tr>
     <tr>
-        <td>Sun ☀️</td>
-        <td>{{ .Sunrise.Format "15:04" }} {{ degreesToCompass .AzimuthSunrise }}</td>
-        <td>{{ .Sunset.Format "15:04" }} {{ degreesToCompass .AzimuthSunset }}</td>
+        <td class="title">Sun</td>
+        <td>{{ .Sunrise.Format "15:04" }} <span class="sub">{{ degreesToCompass .AzimuthSunrise }}</span></td>
+        <td>{{ .Sunset.Format "15:04" }} <span class="sub">{{ degreesToCompass .AzimuthSunset }}</span></td>
     </tr>
     <tr>
-        <td>Blue Hour 🌌</td>
-        <td>{{ .BlueHourRising.Start.Format "15:04" }} - {{ .BlueHourRising.End.Format "15:04" }} {{ degreesToCompass .AzimuthBlueHourRising }}</td>
-        <td>{{ .BlueHourSetting.Start.Format "15:04" }} - {{ .BlueHourSetting.End.Format "15:04" }} {{ degreesToCompass .AzimuthBlueHourSetting }}</td>
+        <td class="title">Golden hour</td>
+        <td>{{ .GoldenHourRising.Start.Format "15:04" }}–{{ .GoldenHourRising.End.Format "15:04" }} <span class="sub">{{ degreesToCompass .AzimuthGoldenHourRising }}</span></td>
+        <td>{{ .GoldenHourSetting.Start.Format "15:04" }}–{{ .GoldenHourSetting.End.Format "15:04" }} <span class="sub">{{ degreesToCompass .AzimuthGoldenHourSetting }}</span></td>
     </tr>
     <tr>
-        <td>Golden Hour 🌇</td>
-        <td>{{ .GoldenHourRising.Start.Format "15:04" }} - {{ .GoldenHourRising.End.Format "15:04" }}  {{ degreesToCompass .AzimuthGoldenHourRising }}</td>
-        <td>{{ .GoldenHourSetting.Start.Format "15:04" }} - {{ .GoldenHourSetting.End.Format "15:04" }} {{ degreesToCompass .AzimuthGoldenHourSetting }}</td>
+        <td class="title">Blue hour</td>
+        <td>{{ .BlueHourRising.Start.Format "15:04" }}–{{ .BlueHourRising.End.Format "15:04" }} <span class="sub">{{ degreesToCompass .AzimuthBlueHourRising }}</span></td>
+        <td>{{ .BlueHourSetting.Start.Format "15:04" }}–{{ .BlueHourSetting.End.Format "15:04" }} <span class="sub">{{ degreesToCompass .AzimuthBlueHourSetting }}</span></td>
     </tr>
+    </tbody>
 </table>

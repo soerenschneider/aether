@@ -117,10 +117,16 @@ func (t *Datasource) GetData(ctx context.Context) (*internal.Data, error) {
 		summary = GenerateReport(tasks, time.Now(), true, defaultSummaryLookForwardDays)
 	}
 
+	tile, tileErr := internal.RenderTile(t.defaultTemplate, data)
+	if tileErr != nil {
+		return nil, fmt.Errorf("could not render tile for datasource %q: %w", t.Name(), tileErr)
+	}
+
 	return &internal.Data{
 		Summary:                    summary,
 		RenderedDefaultTemplate:    defaultTemplateRendered.Bytes(),
 		RenderedSimplifiedTemplate: simpleTemplateRendered.Bytes(),
+		RenderedTile:               tile,
 	}, err
 }
 

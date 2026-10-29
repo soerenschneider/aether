@@ -1,30 +1,12 @@
-<h2 class="collapsible">Summary</h2>
-<table>
-    <thead>
-    <tr>
-        <th scope="row">Category</th>
-        <th scope="row">Event</th>
-    </tr>
-    </thead>
-    <tbody>
-    {{ $summaryCnt := 0 }}
-    {{ range $category := . }}
-    {{ if gt (len .Data) 0 }}
-    {{ $summaryCnt = add $summaryCnt 1 }}
-    {{ $rowspan := len $category.Data }}
-    {{ range $index, $event := $category.Data }}
-    <tr>
-        {{ if eq $index 0 }}
-        <td class="{{ if isEven $summaryCnt }}even{{ else }}odd{{end}}" rowspan="{{ $rowspan }}"><a href="#{{ nameToId $category.Name }}">{{ $category.Name }}</a></td>
-        {{ else }}
-        <td style="display: none"></td>
-        {{ end }}
-        <td>{{ $event }}</td>
-    </tr>
+<nav class="glance" aria-label="At a glance">
+    {{ range . }}
+    {{ if .Data }}
+    <a class="glance-item" href="#{{ nameToId .Name }}">
+        <span class="glance-label">{{ .Name }}</span>
+        <ul>
+            {{ range .Data }}<li>{{ . }}</li>{{ end }}
+        </ul>
+    </a>
     {{ end }}
     {{ end }}
-    {{ end }}
-    </tbody>
-</table>
-
-
+</nav>

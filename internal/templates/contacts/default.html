@@ -1,20 +1,33 @@
+{{ define "tile" }}
 {{ if .Cards }}
-<h2 id="{{ .HtmlId }}" class="collapsible">Anniversaries {{ .From.Format "02.01.06" }} – {{ .To.Format "02.01.06" }}</h2>
-<table>
-    <tr>
-        <th scope="col">Name</th>
-        <th scope="col">Date</th>
-    </tr>
+{{ with index .Cards 0 }}
+<div class="tile-label">{{ .Type }}</div>
+<div class="tile-value">{{ .Name }}</div>
+<div class="tile-sub">{{ .DateFormatted }} · {{ .Years }} years</div>
+{{ end }}
+{{ end }}
+{{ end }}
+
+{{ if .Cards }}
+<header class="card-head">
+    <h2>Anniversaries</h2>
+    <span class="count">{{ len .Cards }}</span>
+    <span class="meta">until {{ .To.Format "02.01." }}</span>
+</header>
+<table class="list">
+    <tbody>
     {{ range .Cards }}
     <tr>
         <td>
-            {{ .Name }}
-            {{ if .Type }}<br/>
-            <span class="location">{{ .Type }}</span>
-            {{ end }}
+            <div class="title">{{ .Name }}</div>
+            {{ if .Type }}<div class="sub">{{ .Type }}</div>{{ end }}
         </td>
-        <td>{{ .DateFormatted }} ({{ .Years }})</td>
+        <td class="end">
+            <div>{{ .DateFormatted }}</div>
+            <div class="sub">{{ .Years }} years</div>
+        </td>
     </tr>
     {{ end }}
+    </tbody>
 </table>
 {{ end }}

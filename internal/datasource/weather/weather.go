@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"math"
 	"time"
 
 	"github.com/soerenschneider/aether/internal"
@@ -47,6 +48,7 @@ func New(client Client, templateData templates.TemplateData) (*WeatherDatasource
 		"getClassForTemp":       getClassForTemp,
 		"getClassForVisibility": getClassForVisibility,
 		"getClassForWind":       getClassForWind,
+		"percent":               formatPercent,
 	}
 
 	var err error
@@ -79,6 +81,10 @@ func formatWeekday(t time.Time) string {
 	return t.Weekday().String()
 }
 
+func formatPercent(fraction float64) int {
+	return int(math.Round(fraction * 100))
+}
+
 func (w *WeatherDatasource) GetData(ctx context.Context) (*internal.Data, error) {
 	data, err := w.client.GetWeatherData(ctx)
 	if err != nil {
@@ -108,9 +114,15 @@ func (w *WeatherDatasource) GetData(ctx context.Context) (*internal.Data, error)
 		summary = GenerateWeatherReport(data.List, time.Now())
 	}
 
+	tile, tileErr := internal.RenderTile(w.regularTemplate, data)
+	if tileErr != nil {
+		return nil, fmt.Errorf("could not render tile for datasource %q: %w", w.Name(), tileErr)
+	}
+
 	return &internal.Data{
 		Summary:                    summary,
 		RenderedDefaultTemplate:    regularTemplateData.Bytes(),
 		RenderedSimplifiedTemplate: simpleTemplateData.Bytes(),
+		RenderedTile:               tile,
 	}, nil
 }

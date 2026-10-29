@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"cmp"
 	"context"
-	"fmt"
 	"html/template"
 	"time"
 
@@ -39,8 +38,8 @@ func New(lat Lat, lon Lon, templateData templates.TemplateData, location *time.L
 	}
 
 	convertDegrees := func(deg float64) string {
-		dir, emoji := pkg.TranslateDegreeToDirection(deg)
-		return fmt.Sprintf("(%s %s)", dir, emoji)
+		dir, _ := pkg.TranslateDegreeToDirection(deg)
+		return dir
 	}
 
 	funcMap := template.FuncMap{

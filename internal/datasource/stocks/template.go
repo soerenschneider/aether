@@ -13,7 +13,7 @@ const defaultTemplate = `<h2 class="collapsible">Stocks</h2>
 			<tbody>
 				{{ range .Symbols }}
 				<tr>
-					<td><a href="{{ .Link }}" target=”_blank”>{{ .Name }}</a></td>
+					<td><a href="{{ .Link }}" target="_blank" rel="noopener">{{ .Name }}</a></td>
 					{{range .Values }}
 						<td>{{ printf "%.2f" . }}</td>
 					{{end}}

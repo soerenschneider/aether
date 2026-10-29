@@ -3,6 +3,7 @@ package alertmanager
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"html/template"
 	"sort"
 	"time"
@@ -118,10 +119,16 @@ func (a *AlertmanagerDatasource) GetData(ctx context.Context) (*internal.Data, e
 		summary = getSummary(alerts, time.Now(), true)
 	}
 
+	tile, tileErr := internal.RenderTile(a.defaultTemplate, alerts)
+	if tileErr != nil {
+		return nil, fmt.Errorf("could not render tile for datasource %q: %w", a.Name(), tileErr)
+	}
+
 	ret := &internal.Data{
 		Summary:                    summary,
 		RenderedDefaultTemplate:    renderedDefaultTemplate.Bytes(),
 		RenderedSimplifiedTemplate: renderedSimpleTemplate.Bytes(),
+		RenderedTile:               tile,
 	}
 	return ret, nil
 }
