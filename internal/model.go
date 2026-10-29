@@ -15,6 +15,9 @@ type Data struct {
 	RenderedSimplifiedTemplate []byte
 	// RenderedTile is a compact summary shown at the top of the page, empty if the datasource has nothing to show
 	RenderedTile []byte
+	// Incomplete is set if parts of the data could not be fetched, e.g. one of several calendars. The data is shown
+	// anyway, but should be fetched again soon.
+	Incomplete bool
 }
 
 // Page is a page of its own that a datasource offers next to the dashboard, e.g. a month view of the calendar.

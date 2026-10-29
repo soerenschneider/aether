@@ -12,7 +12,11 @@ import (
 	"go.uber.org/multierr"
 )
 
-const defaultRefreshInterval = 5 * time.Minute
+const (
+	defaultRefreshInterval = 5 * time.Minute
+	// incomplete data is fetched again after this interval, instead of being kept until the regular refresh
+	incompleteRetryInterval = time.Minute
+)
 
 type Opts func(cachedDatasource *CachedDatasource) error
 
@@ -70,6 +74,10 @@ func (b *CachedDatasource) GetData(ctx context.Context) (*internal.Data, error) 
 			if err == nil {
 				b.data = data
 				b.nextRefresh = calculateNextRefreshInterval(b.refreshInterval, time.Now())
+				if data != nil && data.Incomplete {
+					b.nextRefresh = calculateNextRefreshInterval(min(b.refreshInterval, incompleteRetryInterval), time.Now())
+					log.Debug().Msgf("Data of cached datasource %q is incomplete, retrying at %v", b.datasource.Name(), b.nextRefresh)
+				}
 				return data, nil
 			}
 

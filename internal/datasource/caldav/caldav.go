@@ -158,6 +158,7 @@ func (c *CaldavDatasource) GetData(ctx context.Context) (*internal.Data, error) 
 		RenderedDefaultTemplate:    regularTemplateData.Bytes(),
 		RenderedSimplifiedTemplate: simpleTemplateData.Bytes(),
 		RenderedTile:               tile,
+		Incomplete:                 partialErr != nil,
 	}, nil
 }
 

@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/emersion/go-webdav/caldav"
+	"github.com/soerenschneider/aether/internal/templates"
 )
 
 type staticClient struct {
@@ -119,5 +121,30 @@ func Test_selectCalendar(t *testing.T) {
 
 	if _, err := selectCalendar(nil, ""); err == nil {
 		t.Error("expected an error without calendars")
+	}
+}
+
+func TestCaldavDatasource_GetData_incomplete(t *testing.T) {
+	client, _ := NewMultiClient(
+		NamedCalendar{Name: "Private", Client: staticClient{entries: []Entry{entry("review", time.Now().Add(time.Hour), time.Now().Add(2*time.Hour))}}},
+		NamedCalendar{Name: "Family", Client: staticClient{err: errors.New("boom")}},
+	)
+	ds, err := New(client, templates.TemplateData{
+		DefaultTemplate: []byte(`{{ range .Failed }}failed:{{ . }} {{ end }}{{ range .Entries }}{{ .Summary }}{{ end }}`),
+		SimpleTemplate:  []byte(`{{ len .Entries }}`),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	data, err := ds.GetData(context.Background())
+	if err != nil {
+		t.Fatalf("expected the working calendar to be shown, got %v", err)
+	}
+	if !data.Incomplete {
+		t.Error("expected the data to be marked as incomplete")
+	}
+	if got := string(data.RenderedDefaultTemplate); got != "failed:Family review" {
+		t.Errorf("unexpected rendering %q", got)
 	}
 }
