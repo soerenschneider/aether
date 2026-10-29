@@ -11,8 +11,10 @@ import (
 	"fmt"
 	"math"
 	"sort"
+	"strings"
 	"time"
 
+	"github.com/emersion/go-ical"
 	"github.com/emersion/go-vcard"
 	"github.com/prometheus/alertmanager/api/v2/client/alert"
 	"github.com/prometheus/alertmanager/api/v2/models"
@@ -329,17 +331,18 @@ const (
 // entries of the family calendar, all others belong to the private calendar. Entries listed here with true are in
 // both calendars.
 var familyEntries = map[string]bool{
-	"Moving day":             false,
-	"Dinner with Alex":       true,
-	"Team offsite":           false,
-	"Pick up parcel":         false,
-	"Birthday party":         false,
-	"Yoga":                   false,
-	"Lunch with Sam":         true,
-	"Parents' evening":       false,
-	"Autumn holidays":        false,
-	"Swimming with the kids": false,
-	"Farmers market":         true,
+	"Moving day":                     false,
+	"Dinner with Alex":               true,
+	"Team offsite":                   false,
+	"Pick up parcel":                 false,
+	"Birthday party":                 false,
+	"Yoga":                           false,
+	"Lunch with Sam":                 true,
+	"Parents' evening":               false,
+	"Autumn holidays":                false,
+	"Swimming with the kids":         false,
+	"Swimming with the kids (moved)": false,
+	"Farmers market":                 true,
 }
 
 type fakeCalendar struct {
@@ -413,18 +416,11 @@ func (f fakeCalendar) allEntries(_ context.Context) ([]caldav.Entry, error) {
 			// multi-day, all-day
 			caldav.NewEntry("Autumn holidays", "", inDays(9, 0, 0), inDays(14, 0, 0)),
 		}
-		// regular appointments, so the month view has something to show before and after today
-		for d := -35; d <= 42; d++ {
-			day := inDays(d, 0, 0)
-			switch {
-			case day.Weekday() == time.Tuesday:
-				entries = append(entries, caldav.NewEntry("Swimming with the kids", "Stadtbad Neukölln", inDays(d, 17, 0), inDays(d, 18, 0)))
-			case day.Weekday() == time.Thursday && d != 0:
-				entries = append(entries, caldav.NewEntry("Climbing", "Boulderklub Kreuzberg", inDays(d, 19, 0), inDays(d, 21, 0)))
-			case day.Weekday() == time.Saturday && d%14 < 7:
-				entries = append(entries, caldav.NewEntry("Farmers market", "", inDays(d, 10, 0), inDays(d, 11, 0)))
-			}
+		recurring, err := recurringFixtures()
+		if err != nil {
+			return nil, err
 		}
+		entries = append(entries, recurring...)
 		sort.Slice(entries, func(i, j int) bool { return entries[i].Start.Before(entries[j].Start) })
 	default:
 		entries = []caldav.Entry{
@@ -438,6 +434,72 @@ func (f fakeCalendar) allEntries(_ context.Context) ([]caldav.Entry, error) {
 	}
 
 	return entries, nil
+}
+
+// recurringFixtures returns regular appointments as recurring events, so the dev server uses the real expansion of
+// recurring events, including moved and cancelled occurrences.
+func recurringFixtures() ([]caldav.Entry, error) {
+	// the first given weekday since five weeks ago
+	firstOn := func(weekday time.Weekday, hour, minute int) time.Time {
+		start := inDays(-35, hour, minute)
+		for start.Weekday() != weekday {
+			start = start.AddDate(0, 0, 1)
+		}
+		return start
+	}
+	// the first occurrence of a weekly event after now
+	nextOf := func(start time.Time) time.Time {
+		for start.Before(time.Now()) {
+			start = start.AddDate(0, 0, 7)
+		}
+		return start
+	}
+	// floating time, i.e. local time
+	format := func(t time.Time) string {
+		return t.Format("20060102T150405")
+	}
+
+	swimming := firstOn(time.Tuesday, 17, 0)
+	climbing := firstOn(time.Thursday, 19, 0)
+	market := firstOn(time.Saturday, 10, 0)
+	movedSwimming := nextOf(swimming)
+	cancelledClimbing := nextOf(climbing).AddDate(0, 0, 14)
+
+	lines := []string{
+		"BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//aether//dev//EN",
+		"BEGIN:VEVENT", "UID:swimming@dev",
+		"DTSTART:" + format(swimming), "DTEND:" + format(swimming.Add(time.Hour)),
+		"RRULE:FREQ=WEEKLY", "SUMMARY:Swimming with the kids", "LOCATION:Stadtbad Neukölln",
+		"END:VEVENT",
+		// the next swimming lesson moved to wednesday
+		"BEGIN:VEVENT", "UID:swimming@dev", "RECURRENCE-ID:" + format(movedSwimming),
+		"DTSTART:" + format(movedSwimming.AddDate(0, 0, 1).Add(-time.Hour)), "DTEND:" + format(movedSwimming.AddDate(0, 0, 1)),
+		"SUMMARY:Swimming with the kids (moved)", "LOCATION:Stadtbad Neukölln",
+		"END:VEVENT",
+		"BEGIN:VEVENT", "UID:climbing@dev",
+		"DTSTART:" + format(climbing), "DTEND:" + format(climbing.Add(2*time.Hour)),
+		"RRULE:FREQ=WEEKLY",
+		// today is packed already
+		"EXDATE:" + format(today(19, 0)),
+		"SUMMARY:Climbing", "LOCATION:Boulderklub Kreuzberg",
+		"END:VEVENT",
+		"BEGIN:VEVENT", "UID:climbing@dev", "RECURRENCE-ID:" + format(cancelledClimbing),
+		"DTSTART:" + format(cancelledClimbing), "DTEND:" + format(cancelledClimbing.Add(2*time.Hour)),
+		"STATUS:CANCELLED", "SUMMARY:Climbing",
+		"END:VEVENT",
+		"BEGIN:VEVENT", "UID:market@dev",
+		"DTSTART:" + format(market), "DTEND:" + format(market.Add(time.Hour)),
+		"RRULE:FREQ=WEEKLY;INTERVAL=2", "SUMMARY:Farmers market",
+		"END:VEVENT",
+		"END:VCALENDAR", "",
+	}
+
+	cal, err := ical.NewDecoder(strings.NewReader(strings.Join(lines, "\r\n"))).Decode()
+	if err != nil {
+		return nil, fmt.Errorf("invalid recurring fixtures: %w", err)
+	}
+	from, to := time.Now().AddDate(-1, 0, 0), time.Now().AddDate(1, 0, 0)
+	return caldav.EntriesFromCalendar(cal, from, to, time.Local), nil
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

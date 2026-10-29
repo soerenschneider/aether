@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/emersion/go-webdav"
 	"github.com/emersion/go-webdav/caldav"
@@ -86,26 +87,30 @@ func (c *Client) FetchData(ctx context.Context) ([]Entry, error) {
 		return nil, fmt.Errorf("querying calendar %q: %w", calendar.Path, err)
 	}
 
+	from, to := expansionWindow(time.Now())
+	ignored := ignoredSummaries()
+
 	var entries []Entry
-	for _, icsEvent := range resp {
-		events := icsEvent.Data.Events()
-
-		skipNames := strings.Split(os.Getenv("IGNORE"), ",")
-		for _, e := range events {
-			for _, igName := range skipNames {
-				if evName := e.Props.Get("SUMMARY"); evName != nil &&
-					evName.Value == igName {
-					continue
-				}
+	for _, object := range resp {
+		for _, entry := range EntriesFromCalendar(object.Data, from, to, time.Local) {
+			if !ignored[entry.Summary] {
+				entries = append(entries, entry)
 			}
-
-			//redacted := redactComponent(e.Component)
-			entry := toEntry(e.Component)
-			entries = append(entries, entry)
 		}
 	}
 
 	return entries, nil
+}
+
+// ignoredSummaries returns the summaries of events to leave out, configured as comma separated list in IGNORE.
+func ignoredSummaries() map[string]bool {
+	ret := map[string]bool{}
+	for _, summary := range strings.Split(os.Getenv("IGNORE"), ",") {
+		if summary = strings.TrimSpace(summary); summary != "" {
+			ret[summary] = true
+		}
+	}
+	return ret
 }
 
 // selectCalendar picks the calendar with the given name or path, or the first one if no calendar is wanted.
