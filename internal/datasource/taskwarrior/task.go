@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"sort"
 	"strings"
 	"time"
 
@@ -93,12 +92,13 @@ func (t *Datasource) GetData(ctx context.Context) (*internal.Data, error) {
 	}
 
 	tasks = filterTasks(tasks)
-	sortTasks(tasks)
-	if t.limit > 0 && len(tasks) > t.limit {
-		tasks = tasks[0:t.limit]
+	// dates are reported in UTC, but which day a task is due on depends on the local time
+	for i := range tasks {
+		tasks[i].Due = tasks[i].Due.Local()
+		tasks[i].Wait = tasks[i].Wait.Local()
 	}
 
-	data := TaskTemplateData{Tasks: tasks}
+	data := newTemplateData(tasks, t.limit, time.Now())
 
 	var defaultTemplateRendered bytes.Buffer
 	if err := t.defaultTemplate.Execute(&defaultTemplateRendered, data); err != nil {
@@ -114,6 +114,7 @@ func (t *Datasource) GetData(ctx context.Context) (*internal.Data, error) {
 
 	var summary []string
 	if !t.excludeFromSummary {
+		// based on all tasks, not only the ones that are shown
 		summary = GenerateReport(tasks, time.Now(), true, defaultSummaryLookForwardDays)
 	}
 
@@ -147,12 +148,6 @@ func filterTasks(tasks []Task) []Task {
 	}
 
 	return filtered
-}
-
-func sortTasks(tasks []Task) {
-	sort.Slice(tasks, func(i, j int) bool {
-		return tasks[i].Urgency > tasks[j].Urgency
-	})
 }
 
 func formatTags(tags []string) string {

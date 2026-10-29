@@ -1,9 +1,14 @@
 {{ define "tile" }}
 <div class="tile-label">Tasks</div>
-{{ if .Tasks }}
-{{ $due := .DueSoon }}
-<div class="tile-value{{ if $due }} tone-bad{{ end }}">{{ if $due }}{{ $due }} due{{ else }}{{ len .Tasks }} open{{ end }}</div>
-<div class="tile-sub">{{ (index .Tasks 0).Description }}</div>
+{{ if or .Overdue .DueToday }}
+<div class="tile-value wrap">{{ if .Overdue }}<span class="nowrap tone-bad">{{ .Overdue }} overdue</span>{{ end }} {{ if .DueToday }}<span class="nowrap tone-warn">{{ .DueToday }} today</span>{{ end }}</div>
+{{ with .Pressing }}<div class="tile-sub">{{ .Description }} · {{ .DueLabel }}</div>{{ end }}
+{{ else if .DueTomorrow }}
+<div class="tile-value">Nothing due today</div>
+<div class="tile-sub">{{ .DueTomorrow }} due tomorrow{{ with .Top }} · {{ .Description }}{{ end }}</div>
+{{ else if .Open }}
+<div class="tile-value">{{ .Open }} open</div>
+{{ with .Top }}<div class="tile-sub">{{ .Description }}</div>{{ end }}
 {{ else }}
 <div class="tile-value tone-ok">All done</div>
 <div class="tile-sub">No pending tasks</div>
@@ -12,24 +17,27 @@
 
 <header class="card-head">
     <h2>Tasks</h2>
-    {{ if .Tasks }}<span class="count">{{ len .Tasks }}</span>{{ end }}
-    <span class="meta">by urgency</span>
+    {{ if .Open }}<span class="count">{{ .Open }}</span>{{ end }}
 </header>
-{{ if .Tasks }}
-<table class="list">
+{{ if .Groups }}
+<table class="list tasks">
     <tbody>
+    {{ range .Groups }}
+    <tr class="group {{ .Bucket }}"><th colspan="3" scope="colgroup">{{ .Label }}</th></tr>
     {{ range .Tasks }}
     <tr>
-        <td class="lead"><span class="dot {{ getCssClass .Due }}"></span></td>
+        <td class="lead"><span class="dot due-{{ .Bucket }}"></span></td>
         <td>
             <div class="title">{{ .Description }}</div>
             {{ if or .Project .Tags }}<div class="sub">{{ if .Project }}{{ formatProject .Project }}{{ end }}{{ range .Tags }} <span class="tag">#{{ . }}</span>{{ end }}</div>{{ end }}
         </td>
-        <td class="end sub {{ getCssClass .Due }}">{{ formatDue .Due }}</td>
+        <td class="end sub due-{{ .Bucket }}">{{ .DueLabel }}</td>
     </tr>
+    {{ end }}
     {{ end }}
     </tbody>
 </table>
+{{ if .Hidden }}<div class="card-foot">{{ .Hidden }} less pressing {{ if eq .Hidden 1 }}task{{ else }}tasks{{ end }} not shown</div>{{ end }}
 {{ else }}
 <p class="empty">No pending tasks.</p>
 {{ end }}

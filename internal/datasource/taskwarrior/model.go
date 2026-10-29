@@ -8,18 +8,23 @@ import (
 )
 
 type TaskTemplateData struct {
+	// the tasks that are shown, overdue first and limited to the configured amount
 	Tasks []Task
-}
+	// the shown tasks grouped by due date
+	Groups []TaskGroup
 
-// DueSoon counts the tasks that are overdue or due within the next 24 hours.
-func (d TaskTemplateData) DueSoon() int {
-	count := 0
-	for _, task := range d.Tasks {
-		if !task.Due.IsZero() && time.Until(task.Due) <= 24*time.Hour {
-			count++
-		}
-	}
-	return count
+	// the counts include tasks that are hidden due to the limit
+	Open        int
+	Overdue     int
+	DueToday    int
+	DueTomorrow int
+	// amount of tasks that are not shown due to the limit
+	Hidden int
+
+	// the task to do first: the longest overdue one, otherwise the next one due today
+	Pressing *TaskView
+	// the first shown task
+	Top *TaskView
 }
 
 type Task struct {

@@ -221,6 +221,7 @@
         .sub { color: var(--muted); font-size: .85rem; }
         .end { text-align: right; white-space: nowrap; }
         .when { width: 1%; white-space: nowrap; }
+        .nowrap { white-space: nowrap; }
         .lead { width: 1%; padding-right: 0 !important; }
         .tag { color: var(--faint); }
         .nil { color: var(--faint); }
@@ -242,6 +243,12 @@
             text-transform: uppercase;
         }
         .list tr.highlight .day { color: var(--accent); font-weight: 650; }
+        .due-overdue { color: var(--bad); font-weight: 600; }
+        .due-today { color: var(--warn); font-weight: 600; }
+        .dot.due-overdue { background: var(--bad); }
+        .dot.due-today { background: var(--warn); }
+        .list tr.group.overdue > th { color: var(--bad); }
+        .list tr.group.today > th { color: var(--warn); }
 
         .dot { display: inline-block; width: .5rem; height: .5rem; border-radius: 50%; background: var(--border); transform: translateY(-.05rem); }
         .dot.red, .dot.critical { background: var(--bad); }

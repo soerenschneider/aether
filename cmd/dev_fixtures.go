@@ -382,6 +382,22 @@ func (f fakeTasks) GetTasks(_ context.Context) ([]taskwarrior.Task, error) {
 	switch f.scenario {
 	case scenarioEmpty:
 		return nil, nil
+	case scenarioPacked:
+		return []taskwarrior.Task{
+			// highest urgency, but not due soon: must not push the overdue tasks out of view
+			{Id: 1, Description: "Plan the migration to the new NAS", Due: inDays(9, 0, 0), Project: "homelab", Urgency: 25, Status: "pending"},
+			{Id: 2, Description: "Submit tax return", Due: inDays(-12, 0, 0), Project: "home.finance", Urgency: 12, Status: "pending", Tags: []string{"admin"}},
+			{Id: 3, Description: "Reply to the landlord", Due: inDays(-1, 0, 0), Project: "home", Urgency: 8, Status: "pending"},
+			{Id: 4, Description: "Renew TLS certificates on the edge proxy", Due: inDays(-4, 18, 0), Project: "homelab.infra", Urgency: 14, Status: "pending", Tags: []string{"ops"}},
+			{Id: 5, Description: "Call the insurance", Due: today(9, 0), Project: "home", Urgency: 7, Status: "pending"},
+			{Id: 6, Description: "Pick up the dry cleaning", Due: today(18, 0), Urgency: 4, Status: "pending"},
+			{Id: 7, Description: "Review aether UI pull request", Due: today(0, 0), Project: "aether", Urgency: 9, Status: "pending", Tags: []string{"review"}},
+			{Id: 8, Description: "Pay electricity bill", Due: inDays(1, 0, 0), Project: "home", Urgency: 6, Status: "pending"},
+			{Id: 9, Description: "Prepare slides for Friday", Due: inDays(1, 10, 0), Project: "work", Urgency: 6.5, Status: "pending"},
+			{Id: 10, Description: "Read chapter 4", Due: inDays(4, 0, 0), Urgency: 2, Status: "pending"},
+			{Id: 11, Description: "Book dentist appointment", Urgency: 2.3, Status: "pending"},
+			{Id: 12, Description: "Sort out old photos", Urgency: 1, Status: "pending"},
+		}, nil
 	case scenarioBusy:
 		var tasks []taskwarrior.Task
 		descriptions := []string{
