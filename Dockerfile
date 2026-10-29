@@ -1,31 +1,22 @@
-FROM rust:1.84.1-alpine3.21 AS build-taskwarrior
+FROM rust:1.99.1-alpine3.24 AS build-taskwarrior
 
 # Install dependencies needed to build Taskwarrior
 RUN apk add --no-cache \
     build-base \
     git \
     cmake \
-    libtool \
-    autoconf \
-    pkgconfig \
-    sqlite-dev \
-    ncurses-dev \
     libunwind-dev \
-    util-linux-dev \
-    zlib-dev
+    util-linux-dev
 
-# Set the working directory
 WORKDIR /taskwarrior
 
-# Clone the Taskwarrior repository
 # renovate: datasource=github-releases depName=GothenburgBitFactory/taskwarrior
-ARG TASKWARRIOR_VERSION=v3.3.0
-RUN git clone https://github.com/GothenburgBitFactory/taskwarrior.git . && \
-    git -C /taskwarrior checkout ${TASKWARRIOR_VERSION}
+ARG TASKWARRIOR_VERSION=v3.5.0
+RUN git clone --depth 1 --branch ${TASKWARRIOR_VERSION} --recurse-submodules --shallow-submodules \
+    https://github.com/GothenburgBitFactory/taskwarrior.git .
 
-# Build Taskwarrior using cmake
-RUN cmake -S . -B build -DCMAKE_BUILD_TYPE=Release . && \
-    cmake --build build -j 8 && \
+RUN cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && \
+    cmake --build build -j "$(nproc)" && \
     cmake --install build
 
 FROM golang:1.26.10 AS build-aether
@@ -36,10 +27,9 @@ RUN go mod download
 
 COPY ./ ./
 ENV CGO_ENABLED=0
-RUN go mod download
 RUN make build
 
-FROM alpine:3.21.3 AS final
+FROM alpine:3.24.3 AS final
 
 LABEL maintainer="soerenschneider"
 
@@ -48,10 +38,10 @@ RUN addgroup -g 65532 aether && \
 
 RUN apk add --no-cache \
     tzdata \
-    sqlite-dev \
-    libunwind-dev \
-    util-linux-dev \
-    libstdc++
+    libuuid \
+    libunwind \
+    libstdc++ \
+    libgcc
 
 COPY --from=build-taskwarrior /usr/local/bin/task /usr/bin/task
 COPY --from=build-aether /src/aether /aether
