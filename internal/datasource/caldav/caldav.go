@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"github.com/soerenschneider/aether/internal"
 	"github.com/soerenschneider/aether/internal/templates"
 	"github.com/soerenschneider/aether/pkg"
@@ -55,6 +56,12 @@ func New(client CaldavClient, templateData templates.TemplateData, opts ...Datas
 		location:   time.Now().Location(),
 	}
 
+	for _, opt := range opts {
+		if err := opt(ds); err != nil {
+			return nil, err
+		}
+	}
+
 	var err error
 	ds.defaultTemplate, err = template.New("agenda-regular").Funcs(template.FuncMap{
 		"fixLocation": fixLocation,
@@ -81,7 +88,11 @@ func (c *CaldavDatasource) Name() string {
 
 func (c *CaldavDatasource) GetData(ctx context.Context) (*internal.Data, error) {
 	entries, err := c.client.FetchData(ctx)
-	if err != nil {
+	var partialErr *PartialError
+	if errors.As(err, &partialErr) {
+		// show the calendars that could be fetched
+		log.Warn().Err(err).Msg("could not fetch all calendars")
+	} else if err != nil {
 		return nil, err
 	}
 
@@ -97,8 +108,13 @@ func (c *CaldavDatasource) GetData(ctx context.Context) (*internal.Data, error) 
 		NextNextWeekEnd: now.AddDate(0, 0, daysUntilSunday).AddDate(0, 0, 14),
 	}
 
-	data.Entries = c.filter(data.Entries)
+	if partialErr != nil {
+		data.Failed = partialErr.Calendars
+	}
+
+	// sort before filtering, as the filter stops after the maximum amount of entries
 	sortEntries(data.Entries)
+	data.Entries = c.filter(data.Entries)
 	if len(data.Entries) == c.maxEntries {
 		data.To = data.Entries[len(data.Entries)-1].Start
 	}

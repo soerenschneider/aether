@@ -262,9 +262,41 @@ func buildCardDav(conf *config.CardDavConfig) (*carddav.CarddavDatasource, error
 }
 
 func buildCalDav(conf *config.CalDavConfig) (*caldav.CaldavDatasource, error) {
-	var caldavOpts []caldav.DatasourceOpt
+	calendarConfigs, err := conf.GetCalendars()
+	if err != nil {
+		return nil, err
+	}
+
+	var calendars []caldav.NamedCalendar
+	for _, calendarConf := range calendarConfigs {
+		client, err := buildCalDavClient(calendarConf)
+		if err != nil {
+			return nil, fmt.Errorf("could not build caldav client for calendar %q: %w", calendarConf.Name, err)
+		}
+		calendars = append(calendars, caldav.NamedCalendar{Name: calendarConf.Name, Client: client})
+	}
+
+	client, err := caldav.NewMultiClient(calendars...)
+	if err != nil {
+		return nil, err
+	}
+
+	templateData := templates.TemplateData{}
+	templateData.DefaultTemplate, err = templates.GetTemplate("calendar/default.html")
+	if err != nil {
+		return nil, err
+	}
+	templateData.SimpleTemplate, err = templates.GetTemplate("calendar/simple.html")
+	if err != nil {
+		return nil, err
+	}
+	return caldav.New(client, templateData)
+}
+
+func buildCalDavClient(conf config.CalDavCalendarConfig) (*caldav.Client, error) {
 	clientOpts := []caldav.ClientOpt{
 		caldav.WithHttpClient(httpClient),
+		caldav.WithCalendar(conf.Calendar),
 	}
 
 	if (len(conf.Password) > 0 || len(conf.PasswordFile) > 0) && len(conf.Username) > 0 {
@@ -279,21 +311,7 @@ func buildCalDav(conf *config.CalDavConfig) (*caldav.CaldavDatasource, error) {
 		clientOpts = append(clientOpts, caldav.WithBasicAuth(conf.Username, password))
 	}
 
-	client, err := caldav.NewClient(conf.Endpoint, clientOpts...)
-	if err != nil {
-		return nil, fmt.Errorf("could not build caldav client: %w", err)
-	}
-
-	templateData := templates.TemplateData{}
-	templateData.DefaultTemplate, err = templates.GetTemplate("calendar/default.html")
-	if err != nil {
-		return nil, err
-	}
-	templateData.SimpleTemplate, err = templates.GetTemplate("calendar/simple.html")
-	if err != nil {
-		return nil, err
-	}
-	return caldav.New(client, templateData, caldavOpts...)
+	return caldav.NewClient(conf.Endpoint, clientOpts...)
 }
 
 func buildLogs(conf *config.LogsConfig) (*logs.VictorialogsClient, error) {

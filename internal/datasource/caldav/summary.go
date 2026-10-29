@@ -16,6 +16,9 @@ func getSummary(entries []Entry, now time.Time, addSummaryForNoEvents bool) []st
 
 		if isToday || isOngoing {
 			b := fmt.Sprintf("📅 %s, %s", entry.Summary, strings.Join(entry.Formatted, " "))
+			if entry.Calendar != "" {
+				b += fmt.Sprintf(" (%s)", entry.Calendar)
+			}
 			ret = append(ret, b)
 		}
 	}

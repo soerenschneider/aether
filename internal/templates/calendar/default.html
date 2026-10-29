@@ -3,12 +3,12 @@
 {{ with .Current }}
 <div class="tile-label">Now{{ with $.LaterToday }} · {{ . }} more today{{ end }}</div>
 <div class="tile-value wrap">{{ .Summary }}</div>
-<div class="tile-sub">until {{ .End.Format "15:04" }}{{ with $next }} · then {{ .Summary }} {{ $.ShortWhen . }}{{ end }}</div>
+<div class="tile-sub">{{ if .Calendar }}{{ .Calendar }} · {{ end }}until {{ .End.Format "15:04" }}{{ with $next }} · then {{ .Summary }} {{ $.ShortWhen . }}{{ end }}</div>
 {{ else }}
 <div class="tile-label">Next up{{ with $.MoreToday }} · {{ . }} more today{{ end }}</div>
 {{ with $next }}
 <div class="tile-value wrap">{{ .Summary }}</div>
-<div class="tile-sub">{{ $.ShortWhen . }}{{ if .Location }} · {{ fixLocation .Location }}{{ end }}</div>
+<div class="tile-sub">{{ $.ShortWhen . }}{{ if .Calendar }} · {{ .Calendar }}{{ end }}{{ if .Location }} · {{ fixLocation .Location }}{{ end }}</div>
 {{ else }}
 <div class="tile-value">Nothing planned</div>
 <div class="tile-sub">Your calendar is empty</div>
@@ -21,6 +21,9 @@
     {{ if .Entries }}<span class="count">{{ len .Entries }}</span>{{ end }}
     <span class="meta">until {{ .To.Format "02.01." }}</span>
 </header>
+{{ if .Failed }}
+<p class="card-note">Could not load {{ range $i, $name := .Failed }}{{ if $i }}, {{ end }}{{ $name }}{{ end }}</p>
+{{ end }}
 {{ if .Entries }}
 <table class="list agenda">
     <tbody>
@@ -31,7 +34,12 @@
         <td class="when sub">{{ .When }}{{ if .Ongoing }}<div class="now-badge">now</div>{{ end }}</td>
         <td>
             <div class="title">{{ .Summary }}</div>
-            {{ if .Location }}<div class="sub">{{ if .LocationUrl }}<a href="{{ .LocationUrl }}" target="_blank" rel="noopener">{{ fixLocation .Location }}</a>{{ else }}{{ fixLocation .Location }}{{ end }}</div>{{ end }}
+            {{ if or .Calendar .Location }}
+            <div class="sub">
+                {{ if .Calendar }}<span class="cal cal-{{ .CalendarColor }}">{{ .Calendar }}</span>{{ end }}
+                {{ if .Location }}{{ if .Calendar }} · {{ end }}{{ if .LocationUrl }}<a href="{{ .LocationUrl }}" target="_blank" rel="noopener">{{ fixLocation .Location }}</a>{{ else }}{{ fixLocation .Location }}{{ end }}{{ end }}
+            </div>
+            {{ end }}
         </td>
     </tr>
     {{ end }}

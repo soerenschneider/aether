@@ -12,6 +12,8 @@ import (
 
 type CaldavData struct {
 	Entries []Entry
+	// names of the calendars that could not be fetched
+	Failed []string
 
 	HtmlId string
 	From   time.Time
@@ -31,6 +33,11 @@ type Entry struct {
 	End         time.Time
 	Location    string
 	LocationUrl string
+
+	// name of the calendar(s) the entry belongs to, only set if multiple calendars are configured
+	Calendar string
+	// index into a palette, to tell calendars apart
+	CalendarColor int
 
 	Formatted []string
 }

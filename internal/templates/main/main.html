@@ -243,6 +243,15 @@
             text-transform: uppercase;
         }
         .list tr.highlight .day { color: var(--accent); font-weight: 650; }
+        .card-note { margin: 0 var(--pad) .5rem; padding: .45rem .7rem; border-radius: 10px; font-size: .85rem; color: var(--bad); background: color-mix(in srgb, var(--bad) 8%, transparent); }
+        /* calendars are told apart by a colored dot in front of their name */
+        .cal { white-space: nowrap; }
+        .cal::before { content: ""; display: inline-block; width: .45rem; height: .45rem; margin-right: .3rem; border-radius: 50%; background: var(--cal); transform: translateY(-.05rem); }
+        .cal-0 { --cal: #3b82f6; }
+        .cal-1 { --cal: #a855f7; }
+        .cal-2 { --cal: #10b981; }
+        .cal-3 { --cal: #ec4899; }
+        .cal-4 { --cal: #f59e0b; }
         .due-overdue { color: var(--bad); font-weight: 600; }
         .due-today { color: var(--warn); font-weight: 600; }
         .dot.due-overdue { background: var(--bad); }

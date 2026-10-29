@@ -96,7 +96,19 @@ func buildFakeDatasources(s scenario, recorder *errorRecorder) ([]Datasource, er
 			if err != nil {
 				return err
 			}
-			return add(caldav.New(fakeCalendar{scenario: s}, tmpl))
+			// a single calendar, like a config without "calendars"
+			calendars := []caldav.NamedCalendar{{Client: fakeCalendar{scenario: s}}}
+			if s == scenarioPacked || s == scenarioFailing {
+				calendars = []caldav.NamedCalendar{
+					{Name: "Private", Client: fakeCalendar{scenario: s, calendar: calendarPrivate}},
+					{Name: "Family", Client: fakeCalendar{scenario: s, calendar: calendarFamily}},
+				}
+			}
+			client, err := caldav.NewMultiClient(calendars...)
+			if err != nil {
+				return err
+			}
+			return add(caldav.New(client, tmpl))
 		},
 		func() error {
 			tmpl, err := loadTemplates("taskwarrior/default.html", "")
@@ -142,13 +154,8 @@ func buildFakeDatasources(s scenario, recorder *errorRecorder) ([]Datasource, er
 	}
 
 	if s == scenarioFailing {
-		// a second weather location that can't be reached, plus an unreachable calendar
+		// a second weather location that can't be reached, the family calendar fails as well (see fakeCalendar)
 		datasources = append(datasources, failingDatasource{name: "Weather Hamburg"})
-		for i, ds := range datasources {
-			if ds.Name() == "Calendar" {
-				datasources[i] = failingDatasource{name: ds.Name()}
-			}
-		}
 	}
 
 	return datasources, nil
@@ -310,11 +317,50 @@ func extremeWeather(i int) *weather.WeatherEntry {
 // ---------------------------------------------------------------------------------------------------------------------
 // calendar
 
-type fakeCalendar struct {
-	scenario scenario
+const (
+	calendarPrivate = "private"
+	calendarFamily  = "family"
+)
+
+// entries of the family calendar, all others belong to the private calendar. Entries listed here with true are in
+// both calendars.
+var familyEntries = map[string]bool{
+	"Moving day":       false,
+	"Dinner with Alex": true,
+	"Team offsite":     false,
+	"Pick up parcel":   false,
+	"Birthday party":   false,
+	"Yoga":             false,
+	"Lunch with Sam":   true,
 }
 
-func (f fakeCalendar) FetchData(_ context.Context) ([]caldav.Entry, error) {
+type fakeCalendar struct {
+	scenario scenario
+	// private, family or empty for a single calendar that contains all entries
+	calendar string
+}
+
+func (f fakeCalendar) FetchData(ctx context.Context) ([]caldav.Entry, error) {
+	if f.scenario == scenarioFailing && f.calendar == calendarFamily {
+		return nil, errSimulatedOutage
+	}
+
+	all, err := f.allEntries(ctx)
+	if err != nil || f.calendar == "" {
+		return all, err
+	}
+
+	var entries []caldav.Entry
+	for _, entry := range all {
+		inBoth, isFamily := familyEntries[entry.Summary]
+		if inBoth || (isFamily == (f.calendar == calendarFamily)) {
+			entries = append(entries, entry)
+		}
+	}
+	return entries, nil
+}
+
+func (f fakeCalendar) allEntries(_ context.Context) ([]caldav.Entry, error) {
 	var entries []caldav.Entry
 	switch f.scenario {
 	case scenarioEmpty:

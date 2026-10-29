@@ -2,9 +2,11 @@ package caldav
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/emersion/go-webdav"
@@ -18,6 +20,8 @@ type Client struct {
 	endpoint string
 	username string
 	password string
+	// name or path of the calendar to fetch, the first calendar of the account if empty
+	calendar string
 
 	davClient  *caldav.Client
 	httpClient *http.Client
@@ -65,12 +69,13 @@ func (c *Client) FetchData(ctx context.Context) ([]Entry, error) {
 	if err != nil {
 		return nil, fmt.Errorf("finding calendars: %w", err)
 	}
-	if len(calendars) < 1 {
-		return nil, fmt.Errorf("no calendars found")
+	calendar, err := selectCalendar(calendars, c.calendar)
+	if err != nil {
+		return nil, err
 	}
 
 	//today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
-	resp, err := c.davClient.QueryCalendar(ctx, calendars[0].Path, &caldav.CalendarQuery{
+	resp, err := c.davClient.QueryCalendar(ctx, calendar.Path, &caldav.CalendarQuery{
 		CompFilter: caldav.CompFilter{
 			Name: "VCALENDAR",
 			//Start: today,
@@ -78,7 +83,7 @@ func (c *Client) FetchData(ctx context.Context) ([]Entry, error) {
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("querying first calendar %q: %w", calendars[0].Path, err)
+		return nil, fmt.Errorf("querying calendar %q: %w", calendar.Path, err)
 	}
 
 	var entries []Entry
@@ -101,4 +106,26 @@ func (c *Client) FetchData(ctx context.Context) ([]Entry, error) {
 	}
 
 	return entries, nil
+}
+
+// selectCalendar picks the calendar with the given name or path, or the first one if no calendar is wanted.
+func selectCalendar(calendars []caldav.Calendar, wanted string) (caldav.Calendar, error) {
+	if len(calendars) < 1 {
+		return caldav.Calendar{}, errors.New("no calendars found")
+	}
+	if wanted == "" {
+		return calendars[0], nil
+	}
+
+	for _, calendar := range calendars {
+		if strings.EqualFold(calendar.Name, wanted) || calendar.Path == wanted || path.Base(calendar.Path) == strings.Trim(wanted, "/") {
+			return calendar, nil
+		}
+	}
+
+	available := make([]string, 0, len(calendars))
+	for _, calendar := range calendars {
+		available = append(available, fmt.Sprintf("%q (%s)", calendar.Name, calendar.Path))
+	}
+	return caldav.Calendar{}, fmt.Errorf("calendar %q not found, available: %s", wanted, strings.Join(available, ", "))
 }
