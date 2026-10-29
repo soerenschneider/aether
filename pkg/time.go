@@ -91,15 +91,15 @@ func DurationToString(duration time.Duration) string {
 	var result string
 
 	if years > 0 {
-		result += fmt.Sprintf("%d years, ", years)
+		result += plural(years, "year") + ", "
 	}
 
 	if months > 0 {
-		result += fmt.Sprintf("%d months, ", months)
+		result += plural(months, "month") + ", "
 	}
 
 	if remainingDays > 0 || (years == 0 && months == 0) {
-		result += fmt.Sprintf("%d days", remainingDays)
+		result += plural(remainingDays, "day")
 	}
 
 	return result
@@ -111,4 +111,11 @@ func IsWholeDay(start, end time.Time) bool {
 	}
 
 	return start.Minute() == 0 && end.Minute() == 0
+}
+
+func plural(count int, unit string) string {
+	if count == 1 {
+		return fmt.Sprintf("%d %s", count, unit)
+	}
+	return fmt.Sprintf("%d %ss", count, unit)
 }
