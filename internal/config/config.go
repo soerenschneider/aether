@@ -1,9 +1,11 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
+	"github.com/soerenschneider/aether/pkg"
 	"gopkg.in/yaml.v3"
 )
 
@@ -74,12 +76,7 @@ func (c *EmailConfig) GetUsername() (string, error) {
 		return c.Username, nil
 	}
 
-	data, err := os.ReadFile(c.UsernameFile)
-	if err != nil {
-		return "", err
-	}
-
-	return string(data), nil
+	return pkg.ReadSecretFile(c.UsernameFile)
 }
 
 func (c *EmailConfig) GetPassword() (string, error) {
@@ -87,12 +84,7 @@ func (c *EmailConfig) GetPassword() (string, error) {
 		return c.Password, nil
 	}
 
-	data, err := os.ReadFile(c.PasswordFile)
-	if err != nil {
-		return "", err
-	}
-
-	return string(data), nil
+	return pkg.ReadSecretFile(c.PasswordFile)
 }
 
 func (c *EmailConfig) GetFrom() (string, error) {
@@ -100,12 +92,7 @@ func (c *EmailConfig) GetFrom() (string, error) {
 		return c.From, nil
 	}
 
-	data, err := os.ReadFile(c.FromFile)
-	if err != nil {
-		return "", err
-	}
-
-	return string(data), nil
+	return pkg.ReadSecretFile(c.FromFile)
 }
 
 func (c *EmailConfig) GetRecipients() ([]string, error) {
@@ -118,5 +105,15 @@ func (c *EmailConfig) GetRecipients() ([]string, error) {
 		return nil, err
 	}
 
-	return strings.Split(string(data), ","), nil
+	// separated by commas or line breaks
+	var recipients []string
+	for _, recipient := range strings.FieldsFunc(string(data), func(r rune) bool { return r == ',' || r == '\n' || r == '\r' }) {
+		if recipient = strings.TrimSpace(recipient); recipient != "" {
+			recipients = append(recipients, recipient)
+		}
+	}
+	if len(recipients) == 0 {
+		return nil, fmt.Errorf("no recipients in %q", c.RecipientsFile)
+	}
+	return recipients, nil
 }

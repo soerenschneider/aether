@@ -22,6 +22,7 @@ import (
 	"github.com/soerenschneider/aether/internal/datasource/weather"
 	"github.com/soerenschneider/aether/internal/serve"
 	"github.com/soerenschneider/aether/internal/templates"
+	"github.com/soerenschneider/aether/pkg"
 	"go.uber.org/multierr"
 )
 
@@ -136,11 +137,11 @@ func buildWeather(conf *config.WeatherConfig) (*weather.WeatherDatasource, error
 
 	apiKey := conf.ApiKey
 	if len(conf.ApiKeyFile) > 0 {
-		content, err := os.ReadFile(conf.ApiKeyFile)
+		var err error
+		apiKey, err = pkg.ReadSecretFile(conf.ApiKeyFile)
 		if err != nil {
-			return nil, fmt.Errorf("could not api key from file %q: %w", conf.ApiKeyFile, err)
+			return nil, fmt.Errorf("could not read api key from file %q: %w", conf.ApiKeyFile, err)
 		}
-		apiKey = string(content)
 	}
 
 	weatherClient, err := weather.NewOpenweatherMapClient(apiKey, weather.Lat(conf.Latitude), weather.Lon(conf.Longitude), conf.NiceName, clientOpts...)
@@ -235,11 +236,11 @@ func buildCardDav(conf *config.CardDavConfig) (*carddav.CarddavDatasource, error
 	if (len(conf.Password) > 0 || len(conf.PasswordFile) > 0) && len(conf.Username) > 0 {
 		password := conf.Password
 		if len(conf.PasswordFile) > 0 {
-			content, err := os.ReadFile(conf.PasswordFile)
+			var err error
+			password, err = pkg.ReadSecretFile(conf.PasswordFile)
 			if err != nil {
 				return nil, fmt.Errorf("could not read password from file %q: %w", conf.PasswordFile, err)
 			}
-			password = string(content)
 		}
 		opts = append(opts, carddav.WithBasicAuth(conf.Username, password))
 	}
@@ -306,11 +307,11 @@ func buildCalDavClient(conf config.CalDavCalendarConfig) (*caldav.Client, error)
 	if (len(conf.Password) > 0 || len(conf.PasswordFile) > 0) && len(conf.Username) > 0 {
 		password := conf.Password
 		if len(conf.PasswordFile) > 0 {
-			content, err := os.ReadFile(conf.PasswordFile)
+			var err error
+			password, err = pkg.ReadSecretFile(conf.PasswordFile)
 			if err != nil {
 				return nil, fmt.Errorf("could not read password from file %q: %w", conf.PasswordFile, err)
 			}
-			password = string(content)
 		}
 		clientOpts = append(clientOpts, caldav.WithBasicAuth(conf.Username, password))
 	}
