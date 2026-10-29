@@ -273,6 +273,7 @@ func buildCard(orig vcard.Card, date *vcard.Field, anniversaryType, anniversaryE
 	ret.DateFormatted = getFormattedAnniversaryDate(ret.Anniversary, now)
 	ret.Type = anniversaryType
 	ret.TypeEmoji = anniversaryEmoji
-	ret.Years = now.Year() - ret.Anniversary.Year()
+	// counted towards the next occurrence, which may be next year
+	ret.Years = ret.Upcoming.Year() - ret.Anniversary.Year()
 	return ret, nil
 }
