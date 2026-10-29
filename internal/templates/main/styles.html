@@ -178,6 +178,12 @@
             scroll-margin-top: 1rem;
         }
         .card:has(.span-all) { grid-column: 1 / -1; }
+        /* set by the script: thin rows the cards span, see layoutBoard. The cards keep their order. */
+        .board.masonry { grid-auto-rows: 4px; grid-auto-flow: row; row-gap: 0; }
+        .board.masonry > .card { margin-bottom: var(--gap); }
+        tr.capped { display: none; }
+        .show-all { padding: 0; border: 0; background: none; font: inherit; color: var(--accent); cursor: pointer; }
+        .show-all:hover { text-decoration: underline; }
         .card:target { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
         .card-head, .card > h2 {
             display: flex;

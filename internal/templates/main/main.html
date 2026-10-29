@@ -50,9 +50,103 @@
     </div>
 </div>
 <script>
-    document.addEventListener("htmx:afterSettle", function () { document.body.classList.remove("stale"); });
-    document.addEventListener("htmx:sendError", function () { document.body.classList.add("stale"); });
-    document.addEventListener("htmx:responseError", function () { document.body.classList.add("stale"); });
+    (function () {
+        // long lists show their first entries only, the rest is behind "Show all". Without JavaScript, e.g. in the
+        // email, all entries are shown.
+        var CAP = 6;
+        var EXPANDED = "aether:expanded";
+
+        function expandedCards() {
+            try { return JSON.parse(sessionStorage.getItem(EXPANDED)) || {}; } catch (e) { return {}; }
+        }
+
+        function capLists() {
+            var expanded = expandedCards();
+            document.querySelectorAll(".board > .card[id]").forEach(function (card) {
+                var table = card.querySelector("table.list");
+                if (!table) return;
+                var rows = table.querySelectorAll("tbody > tr:not(.group)");
+                // hiding a single entry behind a button isn't worth it
+                if (rows.length <= CAP + 1) return;
+
+                var isExpanded = !!expanded[card.id];
+                rows.forEach(function (row, i) { row.classList.toggle("capped", !isExpanded && i >= CAP); });
+                // group headings without visible entries are hidden as well
+                table.querySelectorAll("tbody > tr.group").forEach(function (group) {
+                    var visible = false;
+                    for (var row = group.nextElementSibling; row && !row.classList.contains("group"); row = row.nextElementSibling) {
+                        if (!row.classList.contains("capped")) visible = true;
+                    }
+                    group.classList.toggle("capped", !visible);
+                });
+
+                var foot = card.querySelector(".cap-foot");
+                if (!foot) {
+                    foot = document.createElement("div");
+                    foot.className = "card-foot cap-foot";
+                    foot.innerHTML = '<button type="button" class="show-all"></button>';
+                    table.insertAdjacentElement("afterend", foot);
+                }
+                foot.firstChild.textContent = isExpanded ? "Show less" : "Show " + (rows.length - CAP) + " more";
+                foot.firstChild.setAttribute("aria-expanded", isExpanded);
+            });
+        }
+
+        document.addEventListener("click", function (e) {
+            var button = e.target.closest && e.target.closest(".show-all");
+            if (!button) return;
+            var id = button.closest(".card").id;
+            var expanded = expandedCards();
+            if (expanded[id]) delete expanded[id]; else expanded[id] = 1;
+            try { sessionStorage.setItem(EXPANDED, JSON.stringify(expanded)); } catch (e) {}
+            capLists();
+            layoutBoard();
+        });
+
+        // masonry: every card spans as many small grid rows as its content needs, so short cards don't leave gaps
+        // next to long ones. The order of the cards is kept. Without JavaScript, the board is a regular grid.
+        var ROW = 4;
+        var pending = 0;
+
+        function layoutBoard() {
+            var board = document.querySelector(".board");
+            if (!board) return;
+            board.classList.add("masonry");
+            board.querySelectorAll(":scope > .card").forEach(function (card) {
+                // the space between cards is their bottom margin, so rounding to rows adds at most ROW pixels
+                var height = card.getBoundingClientRect().height + (parseFloat(getComputedStyle(card).marginBottom) || 0);
+                card.style.gridRowEnd = "span " + Math.ceil(height / ROW);
+            });
+        }
+
+        function scheduleLayout() {
+            cancelAnimationFrame(pending);
+            pending = requestAnimationFrame(layoutBoard);
+        }
+
+        // cards change their height when they're expanded, when the window is resized or when fonts are loaded
+        var observer = window.ResizeObserver ? new ResizeObserver(scheduleLayout) : null;
+
+        function setup() {
+            capLists();
+            if (observer) {
+                observer.disconnect();
+                document.querySelectorAll(".board > .card").forEach(function (card) { observer.observe(card); });
+            }
+            // right away, so a refreshed board never shows up without its layout
+            layoutBoard();
+        }
+
+        document.addEventListener("htmx:afterSettle", function () {
+            document.body.classList.remove("stale");
+            setup();
+        });
+        document.addEventListener("htmx:sendError", function () { document.body.classList.add("stale"); });
+        document.addEventListener("htmx:responseError", function () { document.body.classList.add("stale"); });
+        window.addEventListener("resize", scheduleLayout);
+
+        setup();
+    })();
 </script>
 </body>
 </html>
