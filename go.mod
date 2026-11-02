@@ -11,7 +11,7 @@ require (
 	github.com/go-co-op/gocron v1.37.0
 	github.com/go-openapi/runtime v0.33.4
 	github.com/go-openapi/strfmt v0.27.4
-	github.com/go-playground/validator/v10 v10.30.5
+	github.com/go-playground/validator/v10 v10.30.6
 	github.com/hashicorp/go-retryablehttp v0.7.8
 	github.com/prometheus/alertmanager v0.34.2
 	github.com/prometheus/client_golang v1.25.0
