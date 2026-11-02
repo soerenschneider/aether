@@ -30,7 +30,7 @@ jobs:
           package-name: ${{ github.repository }}
 
       - name: Checkout
-        uses: actions/checkout@v4.1.0
+        uses: actions/checkout@v7
         with:
           # tags are needed by 'git describe' to embed the version into the binaries
           fetch-depth: 0
