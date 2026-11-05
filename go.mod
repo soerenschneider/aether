@@ -21,7 +21,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0
 	github.com/tdewolff/minify/v2 v2.24.24
 	github.com/teambition/rrule-go v1.8.2
-	github.com/vanng822/go-premailer v1.37.0
+	github.com/vanng822/go-premailer v1.38.0
 	go.uber.org/multierr v1.11.0
 	golang.org/x/exp v0.0.0-20261014143641-f0251eb4aa3e
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
