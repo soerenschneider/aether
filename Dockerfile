@@ -29,7 +29,7 @@ COPY ./ ./
 ENV CGO_ENABLED=0
 RUN make build
 
-FROM alpine:3.24.3 AS final
+FROM alpine:3.24.4 AS final
 
 LABEL maintainer="soerenschneider"
 
