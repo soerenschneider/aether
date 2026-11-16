@@ -13,7 +13,7 @@ require (
 	github.com/go-openapi/strfmt v0.27.4
 	github.com/go-playground/validator/v10 v10.30.5
 	github.com/hashicorp/go-retryablehttp v0.7.8
-	github.com/prometheus/alertmanager v0.34.2
+	github.com/prometheus/alertmanager v0.35.0
 	github.com/prometheus/client_golang v1.25.0
 	github.com/rs/zerolog v1.35.1
 	github.com/sj14/astral v0.2.3
@@ -46,14 +46,14 @@ require (
 	github.com/go-openapi/loads v0.25.3 // indirect
 	github.com/go-openapi/runtime/server-middleware v0.33.4 // indirect
 	github.com/go-openapi/spec v1.0.1 // indirect
-	github.com/go-openapi/swag v0.28.0 // indirect
-	github.com/go-openapi/swag/cmdutils v0.28.0 // indirect
+	github.com/go-openapi/swag v0.29.2 // indirect
+	github.com/go-openapi/swag/cmdutils v0.29.2 // indirect
 	github.com/go-openapi/swag/conv v0.29.2 // indirect
 	github.com/go-openapi/swag/fileutils v0.29.2 // indirect
 	github.com/go-openapi/swag/jsonutils v0.29.2 // indirect
 	github.com/go-openapi/swag/loading v0.29.2 // indirect
 	github.com/go-openapi/swag/mangling v0.29.2 // indirect
-	github.com/go-openapi/swag/netutils v0.28.0 // indirect
+	github.com/go-openapi/swag/netutils v0.29.2 // indirect
 	github.com/go-openapi/swag/pools v0.29.2 // indirect
 	github.com/go-openapi/swag/stringutils v0.29.2 // indirect
 	github.com/go-openapi/swag/typeutils v0.29.2 // indirect
@@ -78,7 +78,7 @@ require (
 	github.com/olekukonko/ll v0.1.9 // indirect
 	github.com/olekukonko/tablewriter v1.1.5 // indirect
 	github.com/prometheus/client_model v0.6.3 // indirect
-	github.com/prometheus/common v0.72.0 // indirect
+	github.com/prometheus/common v0.72.1 // indirect
 	github.com/prometheus/procfs v0.22.0 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
