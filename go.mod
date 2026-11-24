@@ -3,7 +3,7 @@ module github.com/soerenschneider/aether
 go 1.26.5
 
 require (
-	github.com/PuerkitoBio/goquery v1.13.0
+	github.com/PuerkitoBio/goquery v1.14.0
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/emersion/go-ical v0.0.0-20250609112844-439c63cef608
 	github.com/emersion/go-vcard v0.1.0
