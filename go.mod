@@ -23,7 +23,7 @@ require (
 	github.com/teambition/rrule-go v1.8.2
 	github.com/vanng822/go-premailer v1.37.0
 	go.uber.org/multierr v1.11.0
-	golang.org/x/exp v0.0.0-20261014143641-f0251eb4aa3e
+	golang.org/x/exp v0.0.0-20261124000051-d6646c509b6d
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/yaml.v3 v3.0.1
 	jaytaylor.com/html2text v0.0.0-20260303211410-1a4bdc82ecec
@@ -93,7 +93,7 @@ require (
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/net v0.62.0 // indirect
-	golang.org/x/sync v0.24.0 // indirect
+	golang.org/x/sync v0.25.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
