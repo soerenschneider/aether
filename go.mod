@@ -19,7 +19,7 @@ require (
 	github.com/sj14/astral v0.2.3
 	github.com/soerenschneider/go-taskwarrior v0.0.0-20250208074001-b926fd3a88e7
 	github.com/sourcegraph/conc v0.3.0
-	github.com/tdewolff/minify/v2 v2.24.24
+	github.com/tdewolff/minify/v2 v2.25.0
 	github.com/teambition/rrule-go v1.8.2
 	github.com/vanng822/go-premailer v1.37.0
 	go.uber.org/multierr v1.11.0
@@ -82,7 +82,7 @@ require (
 	github.com/prometheus/procfs v0.22.0 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
-	github.com/tdewolff/parse/v2 v2.8.20 // indirect
+	github.com/tdewolff/parse/v2 v2.25.0 // indirect
 	github.com/vanng822/css v1.0.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/otel v1.47.0 // indirect
@@ -94,7 +94,7 @@ require (
 	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/net v0.62.0 // indirect
 	golang.org/x/sync v0.24.0 // indirect
-	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/sys v0.50.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
