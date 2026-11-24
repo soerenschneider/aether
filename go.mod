@@ -9,7 +9,7 @@ require (
 	github.com/emersion/go-vcard v0.1.0
 	github.com/emersion/go-webdav v0.7.0
 	github.com/go-co-op/gocron v1.37.0
-	github.com/go-openapi/runtime v0.33.4
+	github.com/go-openapi/runtime v0.33.5
 	github.com/go-openapi/strfmt v0.27.4
 	github.com/go-playground/validator/v10 v10.30.5
 	github.com/hashicorp/go-retryablehttp v0.7.8
@@ -44,7 +44,7 @@ require (
 	github.com/go-openapi/jsonpointer v1.0.2 // indirect
 	github.com/go-openapi/jsonreference v1.0.3 // indirect
 	github.com/go-openapi/loads v0.25.3 // indirect
-	github.com/go-openapi/runtime/server-middleware v0.33.4 // indirect
+	github.com/go-openapi/runtime/server-middleware v0.33.5 // indirect
 	github.com/go-openapi/spec v1.0.1 // indirect
 	github.com/go-openapi/swag v0.28.0 // indirect
 	github.com/go-openapi/swag/cmdutils v0.28.0 // indirect
@@ -90,10 +90,10 @@ require (
 	go.opentelemetry.io/otel/metric v1.47.0 // indirect
 	go.opentelemetry.io/otel/trace v1.47.0 // indirect
 	go.uber.org/atomic v1.12.0 // indirect
-	go.yaml.in/yaml/v3 v3.0.5 // indirect
+	go.yaml.in/yaml/v3 v3.0.6 // indirect
 	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/net v0.62.0 // indirect
-	golang.org/x/sync v0.24.0 // indirect
+	golang.org/x/sync v0.25.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
